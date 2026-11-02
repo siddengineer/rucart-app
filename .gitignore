@@ -1,0 +1,22 @@
+# Built binaries and dependencies
+**/target/
+**/build/
+.gradle/
+**/.gradle/
+
+# IDE files
+.idea/
+**/.idea/
+*.iml
+.vscode/
+
+# Android generated files
+local.properties
+.cxx/
+*.apk
+*.aab
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini

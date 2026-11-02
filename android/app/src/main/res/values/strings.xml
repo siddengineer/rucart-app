@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">RUCART</string>
+    <string name="tagline">Fast • Fresh • For You</string>
+    <string name="quick_commerce_subtitle">Quick Commerce App - Multiple Stores • Faster Delivery</string>
+
+    <!-- Role selection -->
+    <string name="select_role">Select Interface</string>
+    <string name="customer_app">Customer App</string>
+    <string name="customer_app_desc">Shop fresh groceries, produce &amp; household items</string>
+    <string name="store_owner_title">Store Owner App</string>
+    <string name="store_owner_desc">Manage orders, inventory &amp; product availability</string>
+    <string name="delivery_partner_title">Delivery Partner App</string>
+    <string name="delivery_partner_desc">Pickup orders, route navigation &amp; live delivery</string>
+    <string name="admin_title">Admin Panel</string>
+    <string name="admin_desc">Platform analytics, stores, users &amp; live overview</string>
+
+    <!-- Auth -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Enter your mobile number to continue</string>
+    <string name="phone_hint">Mobile Number</string>
+    <string name="phone_prefix">+91</string>
+    <string name="continue_btn">Continue</string>
+    <string name="login_with_otp">Login with OTP</string>
+    <string name="terms_notice">By continuing, you agree to our Terms &amp; Conditions and Privacy Policy</string>
+
+    <!-- Customer Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_categories">Categories</string>
+    <string name="nav_cart">Cart</string>
+    <string name="nav_orders">Orders</string>
+    <string name="nav_account">Account</string>
+
+    <!-- Customer Home -->
+    <string name="delivering_to">Delivering to</string>
+    <string name="default_location">Shivajinagar, Pune</string>
+    <string name="search_hint">Search for products…</string>
+    <string name="banner_headline">Fresh Groceries In Minutes</string>
+    <string name="shop_now">Shop Now</string>
+    <string name="top_deals">Top Deals</string>
+    <string name="add">ADD</string>
+    <string name="in_stock">In Stock</string>
+
+    <!-- Cart & Checkout -->
+    <string name="my_cart">My Cart</string>
+    <string name="empty_cart">Your cart is empty</string>
+    <string name="bill_details">Bill Details</string>
+    <string name="item_total">Item Total</string>
+    <string name="delivery_partner_fee">Delivery Fee</string>
+    <string name="grand_total">To Pay</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+
+    <!-- Store Owner -->
+    <string name="store_dashboard">Store Dashboard</string>
+    <string name="todays_orders">Today\'s Orders</string>
+    <string name="total_sales">Total Sales</string>
+    <string name="active_orders">Active Orders</string>
+    <string name="inventory_management">Inventory Management</string>
+
+    <!-- Delivery -->
+    <string name="available_deliveries">Available Deliveries</string>
+    <string name="accept_delivery">Accept</string>
+    <string name="delivery_completed">Delivery Completed</string>
+
+    <!-- General -->
+    <string name="rupee_symbol">₹</string>
+    <string name="retry">Retry</string>
+    <string name="loading">Loading…</string>
+</resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-black"
+            android:text="Report Delivery Issue"
+            android:textColor="@color/colorStatusCancelled"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="sans-serif"
+            android:text="Select the reason why this order could not be fulfilled:"
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="13sp" />
+
+        <Spinner
+            android:id="@+id/spnIssueReason"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_edit_text"
+            android:paddingHorizontal="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Detailed Issue Description:"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="13sp" />
+
+        <EditText
+            android:id="@+id/etIssueDetails"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_edit_text"
+            android:gravity="top|start"
+            android:hint="Explain what occurred (e.g. called customer 3 times, phone switched off, door locked)..."
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:textColor="@color/colorTextPrimary"
+            android:textColorHint="@color/colorTextHint"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif"
+            android:text="Note: Submitting an issue will set the order to DELIVERY_FAILED and notify the store and customer immediately."
+            android:textColor="@color/colorTextSecondary"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+</ScrollView>

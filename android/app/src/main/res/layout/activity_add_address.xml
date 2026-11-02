@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
+
+        <!-- Top Header -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Delivery Address"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_title"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Enter manual address details for fast delivery"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body" />
+
+        <!-- Address Tag -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="Address Tag *"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerTag"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingHorizontal="@dimen/spacing_medium" />
+
+        <!-- Recipient Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Contact Person Name *"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAddrRecipient"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Full Name"
+            android:inputType="textPersonName"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body" />
+
+        <!-- Phone Number -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Contact Phone Number *"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAddrPhone"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="10-digit mobile number"
+            android:inputType="phone"
+            android:maxLength="10"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body" />
+
+        <!-- Flat / House No / Building -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="House / Flat / Block No. *"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAddrLine1"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. Flat 301, Marvel Residency"
+            android:inputType="textPostalAddress"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body" />
+
+        <!-- Landmark -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Landmark (Optional)"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAddrLandmark"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. Near City Pride, Opp. Garden"
+            android:inputType="text"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body" />
+
+        <!-- Area Selection (Pune) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="Select Area / Locality (Pune) *"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerDeliveryArea"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingHorizontal="@dimen/spacing_medium" />
+
+        <!-- PIN Code -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="PIN Code *"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etAddrPinCode"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. 411005"
+            android:inputType="number"
+            android:maxLength="6"
+            android:paddingHorizontal="@dimen/spacing_medium"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_body" />
+
+        <!-- Default Checkbox -->
+        <CheckBox
+            android:id="@+id/cbSetDefault"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:checked="true"
+            android:text="Set as default delivery address"
+            android:textColor="@color/text_primary" />
+
+        <!-- Submit Button -->
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnSaveAddress"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:background="@drawable/bg_button_primary"
+            android:text="Save Address"
+            android:textColor="@color/white"
+            android:textSize="@dimen/text_subheading"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

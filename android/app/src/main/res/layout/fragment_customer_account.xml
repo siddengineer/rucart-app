@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/window_background"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_medium">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Account"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/text_heading"
+        android:textStyle="bold" />
+
+    <!-- User Profile Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        app:cardCornerRadius="@dimen/corner_radius_medium"
+        app:cardElevation="1dp"
+        app:strokeColor="@color/divider_color"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/spacing_medium">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_badge_green"
+                android:padding="10dp"
+                android:src="@drawable/ic_account" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_medium"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAccountName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rahul Sharma"
+                    android:textColor="@color/text_primary"
+                    android:textSize="@dimen/text_subheading"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvAccountPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="+91 98765 43210"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_caption" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Manage Addresses Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnManageAddresses"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:background="@drawable/bg_button_secondary"
+        android:text="📍 Manage Delivery Addresses"
+        android:textColor="@color/primary_green"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+    <!-- Payment & Transaction History Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnPaymentHistory"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:background="@drawable/bg_button_secondary"
+        android:text="💳 Payment &amp; Invoice History"
+        android:textColor="@color/primary_green"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+    <!-- Notifications Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnAccountNotifications"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:background="@drawable/bg_button_secondary"
+        android:text="🔔 Notifications &amp; Updates"
+        android:textColor="@color/primary_green"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+    <!-- Switch Interface / Role Button -->
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btnSwitchRole"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:background="@drawable/bg_button_secondary"
+        android:text="Merchant &amp; Partner Portal (Store / Delivery / Admin)"
+        android:textColor="@color/primary_green"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_medium"
+        android:gravity="center"
+        android:padding="@dimen/spacing_small"
+        android:text="Logout"
+        android:textColor="@color/danger_red"
+        android:textSize="@dimen/text_body"
+        android:textStyle="bold" />
+
+</LinearLayout>

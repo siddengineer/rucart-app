@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".RucartApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Rucart"
+        android:usesCleartextTraffic="true">
+
+        <!-- Splash Activity (Entry Point) -->
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Rucart.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Role Selection Screen -->
+        <activity
+            android:name=".ui.auth.RoleSelectionActivity"
+            android:exported="true"
+            android:label="@string/select_role" />
+
+        <!-- Login Screen -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false"
+            android:label="@string/login_title" />
+
+        <!-- Register Screen -->
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false"
+            android:label="Register Account" />
+
+        <!-- Product Detail Screen -->
+        <activity
+            android:name=".ui.customer.ProductDetailActivity"
+            android:exported="false"
+            android:label="Product Details" />
+
+        <!-- Address Management Screen -->
+        <activity
+            android:name=".ui.customer.AddressManagementActivity"
+            android:exported="false"
+            android:label="Delivery Addresses" />
+
+        <!-- Add Address Screen -->
+        <activity
+            android:name=".ui.customer.AddAddressActivity"
+            android:exported="false"
+            android:label="Add Address" />
+
+        <!-- Checkout Screen -->
+        <activity
+            android:name=".ui.customer.CheckoutActivity"
+            android:exported="false"
+            android:label="Checkout" />
+
+        <!-- Order Detail & Receipt Screen -->
+        <activity
+            android:name=".ui.customer.OrderDetailActivity"
+            android:exported="false"
+            android:label="Order Details" />
+
+        <!-- Store Selection Screen -->
+        <activity
+            android:name=".ui.customer.StoreSelectionActivity"
+            android:exported="false"
+            android:label="Service Area and Stores" />
+
+        <!-- Order Success Screen -->
+        <activity
+            android:name=".ui.customer.OrderSuccessActivity"
+            android:exported="false"
+            android:label="Order Confirmed" />
+
+        <!-- Payment Processing Screen (Razorpay Simulation) -->
+        <activity
+            android:name=".ui.customer.PaymentProcessingActivity"
+            android:exported="false"
+            android:label="Payment Processing" />
+
+        <!-- Payment Result Screen (Success / Failed / COD) -->
+        <activity
+            android:name=".ui.customer.PaymentResultActivity"
+            android:exported="false"
+            android:label="Payment Status" />
+
+        <!-- Transaction History Screen -->
+        <activity
+            android:name=".ui.customer.TransactionHistoryActivity"
+            android:exported="false"
+            android:label="Transaction History" />
+
+        <!-- Refund Status Screen -->
+        <activity
+            android:name=".ui.customer.RefundStatusActivity"
+            android:exported="false"
+            android:label="Refund Details" />
+
+        <!-- Receipt Viewer Screen -->
+        <activity
+            android:name=".ui.customer.ReceiptViewActivity"
+            android:exported="false"
+            android:label="Tax Invoice &amp; Receipt" />
+
+        <!-- Notifications Screen -->
+        <activity
+            android:name=".ui.customer.NotificationsActivity"
+            android:exported="false"
+            android:label="Notifications" />
+
+        <!-- FileProvider for Sharing and Viewing PDF Receipts -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- 1. Customer Main Activity -->
+        <activity
+            android:name=".ui.customer.CustomerMainActivity"
+            android:exported="false"
+            android:label="@string/app_name" />
+
+        <!-- 2. Store Owner Activities -->
+        <activity
+            android:name=".ui.store.StoreLoginActivity"
+            android:exported="true"
+            android:label="Store Owner Sign In" />
+
+        <activity
+            android:name=".ui.store.StoreMainActivity"
+            android:exported="true"
+            android:label="@string/store_owner_title" />
+
+        <!-- 3. Delivery Partner Activities -->
+        <activity
+            android:name=".ui.delivery.DeliveryLoginActivity"
+            android:exported="false"
+            android:label="Delivery Partner Sign In" />
+
+        <activity
+            android:name=".ui.delivery.DeliveryMainActivity"
+            android:exported="false"
+            android:label="@string/delivery_partner_title" />
+
+        <activity
+            android:name=".ui.delivery.DeliveryOrdersActivity"
+            android:exported="false"
+            android:label="Deliveries Management" />
+
+        <activity
+            android:name=".ui.delivery.DeliveryDetailActivity"
+            android:exported="false"
+            android:label="Delivery Details" />
+
+        <activity
+            android:name=".ui.delivery.DeliveryHistoryActivity"
+            android:exported="false"
+            android:label="Delivery History" />
+
+        <!-- 4. Admin Activities -->
+        <activity
+            android:name=".ui.admin.AdminLoginActivity"
+            android:exported="false"
+            android:label="Admin Sign In" />
+
+        <activity
+            android:name=".ui.admin.AdminMainActivity"
+            android:exported="false"
+            android:label="@string/admin_title" />
+
+        <activity
+            android:name=".ui.admin.AdminStoresActivity"
+            android:exported="false"
+            android:label="Store Management" />
+
+        <activity
+            android:name=".ui.admin.AdminProductsActivity"
+            android:exported="false"
+            android:label="Product Catalog" />
+
+        <activity
+            android:name=".ui.admin.AdminOrdersActivity"
+            android:exported="false"
+            android:label="Order Management" />
+
+        <activity
+            android:name=".ui.admin.AdminUsersActivity"
+            android:exported="false"
+            android:label="User Management" />
+
+        <activity
+            android:name=".ui.admin.AdminReportsActivity"
+            android:exported="false"
+            android:label="Operational Reports" />
+
+        <activity
+            android:name=".ui.admin.AdminAuditLogsActivity"
+            android:exported="false"
+            android:label="Audit Logs" />
+
+    </application>
+
+</manifest>
