@@ -3,7 +3,6 @@
 [![Android](https://img.shields.io/badge/Platform-Android%20Java-3DDC84.svg?style=flat&logo=android)](https://developer.android.com/)
 [![Spring Boot](https://img.shields.io/badge/Backend-Spring%20Boot%203.3-6DB33F.svg?style=flat&logo=springboot)](https://spring.io/projects/spring-boot)
 [![MySQL](https://img.shields.io/badge/Database-MySQL%208-4479A1.svg?style=flat&logo=mysql)](https://www.mysql.com/)
-[![Razorpay](https://img.shields.io/badge/Payment-Razorpay%20SDK-02042B.svg?style=flat&logo=razorpay)](https://razorpay.com/)
 
 A commercial-grade quick-commerce grocery delivery application inspired by **Blinkit**, **Zepto**, and **BigBasket**. Built using a native **Android (Java + Material 3)** frontend and a robust **Spring Boot 3 + MySQL 8** backend.
 
@@ -35,13 +34,13 @@ rucart_project/
 │       │   ├── service/                  # Business Logic (OrderService, PaymentService, etc.)
 │       │   └── util/                     # DataInitializer (Auto-seeds initial catalog & test accounts)
 │       └── resources/
-│           └── application.properties    # DataSource, Razorpay test keys, JWT config
+│           └── application.properties    # DataSource, Payment Gateway, JWT config
 │
 └── android/                              # Native Android Studio Project (Java & XML)
     ├── build.gradle / settings.gradle
     ├── gradlew / gradlew.bat
     └── app/
-        ├── build.gradle                  # compileSdk 34, ViewBinding, Retrofit 2, Razorpay SDK
+        ├── build.gradle                  # compileSdk 34, ViewBinding, Retrofit 2
         └── src/main/
             ├── AndroidManifest.xml
             ├── java/com/rucart/app/      # Splash, Customer, Store, Delivery, Admin, Auth Activities
@@ -65,13 +64,12 @@ The backend automatically seeds these test accounts into MySQL:
 
 ---
 
-## 💳 Payment Gateway (Razorpay)
+## 💳 Payment Gateway
 
-Integrated with Razorpay API and Android SDK (`com.razorpay:checkout:1.6.38`):
+Integrated payment processing:
 - **Payment Options in Checkout**:
-  1. `💳 Pay Online (Razorpay)` — **Default**.
+  1. `💳 Pay Online (UPI, Cards, Net Banking)` — **Default**.
   2. `💵 Cash on Delivery`.
-- **Direct Checkout Dialog**: Tapping `PROCEED TO PAY` opens the official Razorpay modal sheet directly (supporting Google Pay, PhonePe, Paytm, Cards, Net Banking).
 - **Direct Auto-Acceptance**:
   - Orders are **auto-accepted (`ACCEPTED`) upon creation & payment confirmation**.
   - No "Pending" status and no waiting for store owner approval before releasing.
@@ -129,7 +127,7 @@ $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
 | `GET` | `/api/v1/products` | Search catalog with filters | Public |
 | `POST` | `/api/v1/orders` | Create order with stock reservation | Customer |
 | `GET` | `/api/v1/orders/my-orders` | Customer order history | Customer |
-| `POST` | `/api/v1/payments/initiate` | Create Razorpay order session | Customer |
+| `POST` | `/api/v1/payments/initiate` | Create payment gateway session | Customer |
 | `POST` | `/api/v1/payments/verify` | Verify cryptographic HMAC signature | Customer |
 | `GET` | `/api/v1/store-owner/orders` | Store fulfillment queue | Store Owner |
 | `POST` | `/api/v1/delivery/orders/{id}/deliver`| Verify OTP and finish delivery | Delivery Partner |

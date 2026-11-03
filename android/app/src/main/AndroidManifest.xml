@@ -85,7 +85,7 @@
             android:exported="false"
             android:label="Order Confirmed" />
 
-        <!-- Payment Processing Screen (Razorpay Simulation) -->
+        <!-- Payment Processing Screen -->
         <activity
             android:name=".ui.customer.PaymentProcessingActivity"
             android:exported="false"

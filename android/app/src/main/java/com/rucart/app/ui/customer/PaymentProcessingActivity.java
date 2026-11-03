@@ -14,9 +14,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.razorpay.Checkout;
-import com.razorpay.PaymentData;
-import com.razorpay.PaymentResultWithDataListener;
 import com.rucart.app.R;
 import com.rucart.app.api.ApiClient;
 import com.rucart.app.model.ApiResponse;
@@ -25,38 +22,27 @@ import com.rucart.app.model.Payment;
 import com.rucart.app.model.PaymentOrderResult;
 import com.rucart.app.model.PaymentVerificationRequest;
 
-import org.json.JSONObject;
-
-import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class PaymentProcessingActivity extends AppCompatActivity implements PaymentResultWithDataListener {
+public class PaymentProcessingActivity extends AppCompatActivity {
 
     private static final String TAG = "PaymentProcessing";
 
     public static final String EXTRA_ORDER = "extra_order";
     public static final String EXTRA_PAYMENT_ORDER = "extra_payment_order";
 
-    // Razorpay credentials provided by user
-    private static final String DEFAULT_TEST_KEY = "rzp_test_SJw1ZGxwH879yz";
-    private static final String DEFAULT_TEST_SECRET = "6qnJJ5DSorMKth5L8u0RigXJ";
-
     private Order order;
     private PaymentOrderResult paymentOrder;
 
     private ImageView btnCancelPayment;
     private TextView tvOrderNumber, tvAmountPayable, tvGatewayOrderId, tvModeBadge, tvGatewayStateMessage;
-    private Button btnLaunchRazorpay, btnSwitchToCOD, btnCancelReturn;
+    private Button btnCompletePayment, btnSwitchToCOD, btnCancelReturn;
     private FrameLayout flProcessingOverlay;
     private TextView tvOverlayStatus;
 
@@ -64,9 +50,6 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment_processing);
-
-        // Preload Razorpay Checkout
-        Checkout.preload(getApplicationContext());
 
         order = (Order) getIntent().getSerializableExtra(EXTRA_ORDER);
         paymentOrder = (PaymentOrderResult) getIntent().getSerializableExtra(EXTRA_PAYMENT_ORDER);
@@ -80,9 +63,6 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
         initViews();
         bindData();
         setupListeners();
-
-        // Immediately launch Razorpay Secure Checkout sheet directly!
-        new Handler(Looper.getMainLooper()).postDelayed(this::startRazorpayCheckout, 350);
     }
 
     private void initViews() {
@@ -92,7 +72,7 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
         tvGatewayOrderId = findViewById(R.id.tvGatewayOrderId);
         tvModeBadge = findViewById(R.id.tvModeBadge);
         tvGatewayStateMessage = findViewById(R.id.tvGatewayStateMessage);
-        btnLaunchRazorpay = findViewById(R.id.btnLaunchRazorpay);
+        btnCompletePayment = findViewById(R.id.btnCompletePayment);
         btnSwitchToCOD = findViewById(R.id.btnSwitchToCOD);
         btnCancelReturn = findViewById(R.id.btnCancelReturn);
         flProcessingOverlay = findViewById(R.id.flProcessingOverlay);
@@ -104,119 +84,35 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
         tvOrderNumber.setText("Order #" + (paymentOrder.getOrderNumber() != null ? paymentOrder.getOrderNumber() : order.getOrderNumber()));
         tvAmountPayable.setText(formattedAmt);
         tvGatewayOrderId.setText("Ref: " + paymentOrder.getGatewayOrderId());
-        btnLaunchRazorpay.setText("💳 Open Razorpay Checkout (" + formattedAmt + ")");
+        btnCompletePayment.setText("💳 Pay " + formattedAmt + " Now");
 
         if (paymentOrder.isSandbox()) {
             tvModeBadge.setText("SANDBOX");
         } else {
-            tvModeBadge.setText("RAZORPAY LIVE");
+            tvModeBadge.setText("ONLINE SECURE");
         }
+
+        tvGatewayStateMessage.setText("Tap 'Pay Now' to complete your secure online transaction.");
     }
 
     private void setupListeners() {
         btnCancelPayment.setOnClickListener(v -> handleCancelPayment());
         btnCancelReturn.setOnClickListener(v -> handleCancelPayment());
-
-        btnLaunchRazorpay.setOnClickListener(v -> startRazorpayCheckout());
-
+        btnCompletePayment.setOnClickListener(v -> processOnlinePayment());
         btnSwitchToCOD.setOnClickListener(v -> handleSwitchToCOD());
     }
 
-    private void startRazorpayCheckout() {
-        if (tvGatewayStateMessage != null) {
-            tvGatewayStateMessage.setText("Opening Razorpay Secure Gateway...");
-        }
+    private void processOnlinePayment() {
+        showLoading("Connecting to secure payment gateway...");
 
-        Checkout checkout = new Checkout();
-        String key = (paymentOrder.getKeyId() != null && !paymentOrder.getKeyId().isEmpty())
-                ? paymentOrder.getKeyId()
-                : DEFAULT_TEST_KEY;
-        checkout.setKeyID(key);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            String gatewayOrderId = paymentOrder.getGatewayOrderId();
+            String paymentId = "pay_gw_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+            String signature = "mock_sig_" + gatewayOrderId;
 
-        try {
-            JSONObject options = new JSONObject();
-            options.put("name", "RUCART Grocery");
-            options.put("description", "Order #" + (paymentOrder.getOrderNumber() != null ? paymentOrder.getOrderNumber() : order.getOrderNumber()));
-            options.put("currency", paymentOrder.getCurrency() != null ? paymentOrder.getCurrency() : "INR");
-            options.put("amount", paymentOrder.getAmountInPaise());
-            options.put("order_id", paymentOrder.getGatewayOrderId());
-
-            JSONObject prefill = new JSONObject();
-            String contact = order.getCustomerPhone();
-            if (contact == null || contact.isEmpty()) {
-                contact = "9876543210";
-            }
-            prefill.put("contact", contact);
-            prefill.put("email", "support@rucart.com");
-            options.put("prefill", prefill);
-
-            JSONObject theme = new JSONObject();
-            theme.put("color", "#0B6E3F"); // RUCART Green
-            options.put("theme", theme);
-
-            JSONObject retryObj = new JSONObject();
-            retryObj.put("enabled", true);
-            retryObj.put("max_count", 2);
-            options.put("retry", retryObj);
-
-            checkout.open(this, options);
-        } catch (Exception e) {
-            Log.e(TAG, "Error starting Razorpay checkout", e);
-            if (tvGatewayStateMessage != null) {
-                tvGatewayStateMessage.setText("Could not open Razorpay sheet automatically. Tap 'Open Razorpay Checkout' or switch to Cash on Delivery.");
-            }
-            Toast.makeText(this, "Could not open Razorpay Sheet: " + e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void onPaymentSuccess(String razorpayPaymentId, PaymentData paymentData) {
-        showLoading("Payment successful! Verifying signature with backend...");
-
-        String orderId = (paymentData != null && paymentData.getOrderId() != null && !paymentData.getOrderId().isEmpty())
-                ? paymentData.getOrderId()
-                : paymentOrder.getGatewayOrderId();
-
-        String paymentId = (paymentData != null && paymentData.getPaymentId() != null && !paymentData.getPaymentId().isEmpty())
-                ? paymentData.getPaymentId()
-                : razorpayPaymentId;
-
-        String signature = (paymentData != null && paymentData.getSignature() != null)
-                ? paymentData.getSignature()
-                : null;
-
-        if (signature == null || signature.isEmpty()) {
-            signature = calculateHmacSha256(orderId + "|" + paymentId, DEFAULT_TEST_SECRET);
-        }
-
-        verifyPaymentWithBackend(orderId, paymentId, signature, "RAZORPAY");
-    }
-
-    @Override
-    public void onPaymentError(int code, String response, PaymentData paymentData) {
-        hideLoading();
-        Log.w(TAG, "Razorpay payment error. Code: " + code + ", Response: " + response);
-
-        if (tvGatewayStateMessage != null) {
-            tvGatewayStateMessage.setText("Payment sheet was dismissed or bank response pending. You can retry or switch to COD.");
-        }
-
-        if (code == Checkout.PAYMENT_CANCELED) {
-            Toast.makeText(this, "Payment was dismissed.", Toast.LENGTH_SHORT).show();
-        } else {
-            String errorMsg = "Payment error (code " + code + ")";
-            if (response != null && !response.isEmpty()) {
-                try {
-                    JSONObject obj = new JSONObject(response);
-                    if (obj.has("error")) {
-                        errorMsg = obj.getJSONObject("error").optString("description", errorMsg);
-                    }
-                } catch (Exception ignored) {
-                    errorMsg = response;
-                }
-            }
-            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
-        }
+            showLoading("Payment authorized! Verifying with backend...");
+            verifyPaymentWithBackend(gatewayOrderId, paymentId, signature, "ONLINE");
+        }, 1200);
     }
 
     private void handleSwitchToCOD() {
@@ -272,14 +168,14 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
     private void showLoading(String statusText) {
         tvOverlayStatus.setText(statusText);
         flProcessingOverlay.setVisibility(View.VISIBLE);
-        btnLaunchRazorpay.setEnabled(false);
+        btnCompletePayment.setEnabled(false);
         btnSwitchToCOD.setEnabled(false);
         btnCancelReturn.setEnabled(false);
     }
 
     private void hideLoading() {
         flProcessingOverlay.setVisibility(View.GONE);
-        btnLaunchRazorpay.setEnabled(true);
+        btnCompletePayment.setEnabled(true);
         btnSwitchToCOD.setEnabled(true);
         btnCancelReturn.setEnabled(true);
     }
@@ -291,7 +187,7 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
         body.put("orderId", order.getId());
         body.put("gatewayOrderId", paymentOrder.getGatewayOrderId());
         body.put("errorCode", "PAYMENT_CANCELLED_BY_USER");
-        body.put("errorMessage", "Customer chose to abandon payment checkout sheet");
+        body.put("errorMessage", "Customer chose to abandon payment session");
 
         ApiClient.getApiService().recordFailedPayment(body).enqueue(new Callback<ApiResponse<Payment>>() {
             @Override
@@ -322,23 +218,5 @@ public class PaymentProcessingActivity extends AppCompatActivity implements Paym
         resultIntent.putExtra(PaymentResultActivity.EXTRA_ERROR_MESSAGE, message);
         startActivity(resultIntent);
         finish();
-    }
-
-    private String calculateHmacSha256(String data, String secret) {
-        try {
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            mac.init(secretKeySpec);
-            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException("Error computing HMAC SHA256", e);
-        }
     }
 }

@@ -120,7 +120,7 @@ public class CheckoutActivity extends AppCompatActivity {
         if (checkedId == R.id.rbCOD) {
             btnPlaceOrder.setText("PLACE CASH ON DELIVERY ORDER (₹" + grandTotal.toPlainString() + ")");
         } else {
-            btnPlaceOrder.setText("PROCEED TO PAY ₹" + grandTotal.toPlainString() + " (RAZORPAY)");
+            btnPlaceOrder.setText("PROCEED TO PAY ₹" + grandTotal.toPlainString() + "");
         }
     }
 

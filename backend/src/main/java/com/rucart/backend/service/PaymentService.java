@@ -81,7 +81,7 @@ public class PaymentService {
     }
 
     /**
-     * Creates an online payment gateway order/session (e.g. Razorpay order_id)
+     * Creates an online payment gateway order/session (gateway session)
      * with duplicate payment prevention, backend pricing validation, and idempotency.
      */
     @Transactional
@@ -107,7 +107,7 @@ public class PaymentService {
                         p.getAmount().multiply(BigDecimal.valueOf(100)).longValue(),
                         p.getAmount(),
                         p.getCurrency(),
-                        paymentGatewayProvider instanceof com.rucart.backend.payment.RazorpayPaymentProvider rzp ? rzp.getKeyId() : "test_key",
+                        paymentGatewayProvider instanceof com.rucart.backend.payment.StandardPaymentGatewayProvider gw ? gw.getKeyId() : "test_key",
                         p.isSandbox(),
                         p.getReceiptNumber(),
                         order.getOrderNumber()
@@ -292,16 +292,16 @@ public class PaymentService {
 
             if ("payment.captured".equals(event) || "order.paid".equals(event)) {
                 JsonNode paymentEntity = payload.path("payment").path("entity");
-                String rzpOrderId = paymentEntity.path("order_id").asText();
-                String rzpPaymentId = paymentEntity.path("id").asText();
+                String gwOrderId = paymentEntity.path("order_id").asText();
+                String gwPaymentId = paymentEntity.path("id").asText();
 
-                Optional<Payment> paymentOpt = paymentRepository.findByGatewayOrderId(rzpOrderId);
+                Optional<Payment> paymentOpt = paymentRepository.findByGatewayOrderId(gwOrderId);
                 if (paymentOpt.isPresent()) {
                     Payment payment = paymentOpt.get();
                     if (payment.getPaymentStatus() != PaymentStatus.COMPLETED) {
                         payment.setPaymentStatus(PaymentStatus.COMPLETED);
-                        payment.setGatewayPaymentId(rzpPaymentId);
-                        payment.setTransactionId(rzpPaymentId);
+                        payment.setGatewayPaymentId(gwPaymentId);
+                        payment.setTransactionId(gwPaymentId);
                         payment.setPaidAt(LocalDateTime.now());
                         paymentRepository.save(payment);
 
@@ -313,15 +313,15 @@ public class PaymentService {
                             }
                             orderRepository.save(order);
                         }
-                        log.info("Webhook captured payment for gateway order: {}", rzpOrderId);
+                        log.info("Webhook captured payment for gateway order: {}", gwOrderId);
                     }
                 }
             } else if ("payment.failed".equals(event)) {
                 JsonNode paymentEntity = payload.path("payment").path("entity");
-                String rzpOrderId = paymentEntity.path("order_id").asText();
+                String gwOrderId = paymentEntity.path("order_id").asText();
                 String errorDesc = paymentEntity.path("error_description").asText();
 
-                paymentRepository.findByGatewayOrderId(rzpOrderId).ifPresent(payment -> {
+                paymentRepository.findByGatewayOrderId(gwOrderId).ifPresent(payment -> {
                     if (payment.getPaymentStatus() != PaymentStatus.COMPLETED) {
                         payment.setPaymentStatus(PaymentStatus.FAILED);
                         payment.setErrorMessage(errorDesc);

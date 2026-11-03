@@ -29,7 +29,7 @@ public class PaymentController {
     }
 
     /**
-     * 1. Payment Initiation: Creates payment order/session with gateway (Razorpay).
+     * 1. Payment Initiation: Creates payment order/session with gateway.
      */
     @PostMapping("/initiate")
     public ResponseEntity<ApiResponse<PaymentOrderResult>> initiatePayment(
@@ -73,7 +73,7 @@ public class PaymentController {
     @PostMapping("/webhook")
     public ResponseEntity<Map<String, Object>> handleWebhook(
             @RequestBody String rawPayload,
-            @RequestHeader(value = "X-Razorpay-Signature", required = false) String signature) {
+            @RequestHeader(value = "X-Signature", required = false) String signature) {
         Map<String, Object> result = paymentService.handleWebhook(rawPayload, signature);
         return ResponseEntity.ok(result);
     }

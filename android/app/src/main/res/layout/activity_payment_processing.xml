@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Razorpay Secure Payment"
+                android:text="Secure Online Payment"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -135,7 +135,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Razorpay Gateway Status Card -->
+                <!-- Payment Gateway Status Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -165,7 +165,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/spacing_small"
                             android:gravity="center"
-                            android:text="Launching Razorpay Secure Gateway..."
+                            android:text="Ready to Process Payment"
                             android:textColor="@color/text_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -204,14 +204,14 @@
                         android:textSize="11sp" />
                 </LinearLayout>
 
-                <!-- Primary Action: Re-Open Razorpay Sheet if dismissed -->
+                <!-- Primary Action: Complete Payment -->
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/btnLaunchRazorpay"
+                    android:id="@+id/btnCompletePayment"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
                     android:layout_marginTop="@dimen/spacing_large"
                     android:background="@drawable/bg_button_primary"
-                    android:text="💳 Open Razorpay Checkout"
+                    android:text="💳 Pay Now"
                     android:textColor="@color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />

@@ -5,7 +5,7 @@ import com.rucart.backend.dto.OrderItemRequest;
 import com.rucart.backend.dto.OrderCreateRequest;
 import com.rucart.backend.dto.PaymentVerificationRequest;
 import com.rucart.backend.model.*;
-import com.rucart.backend.payment.RazorpayPaymentProvider;
+import com.rucart.backend.payment.StandardPaymentGatewayProvider;
 import com.rucart.backend.repository.*;
 import com.rucart.backend.security.CustomUserDetails;
 import com.rucart.backend.security.JwtUtil;
@@ -49,7 +49,7 @@ public class PaymentIntegrationTest {
     private PaymentService paymentService;
 
     @Autowired
-    private RazorpayPaymentProvider razorpayPaymentProvider;
+    private StandardPaymentGatewayProvider paymentGatewayProvider;
 
     @Autowired
     private UserRepository userRepository;
@@ -138,7 +138,7 @@ public class PaymentIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.gatewayOrderId").isNotEmpty())
-                .andExpect(jsonPath("$.data.keyId").value(razorpayPaymentProvider.getKeyId()))
+                .andExpect(jsonPath("$.data.keyId").value(paymentGatewayProvider.getKeyId()))
                 .andExpect(jsonPath("$.data.amountInPaise").isNumber())
                 .andExpect(jsonPath("$.data.orderNumber").value(order.getOrderNumber()));
     }
@@ -151,9 +151,9 @@ public class PaymentIntegrationTest {
 
         String gatewayOrderId = orderResult.getGatewayOrderId();
         String gatewayPaymentId = "pay_test_" + UUID.randomUUID().toString().substring(0, 10);
-        String signature = razorpayPaymentProvider.calculateHmacSha256(
+        String signature = paymentGatewayProvider.calculateHmacSha256(
                 gatewayOrderId + "|" + gatewayPaymentId,
-                razorpayPaymentProvider.getKeySecret()
+                paymentGatewayProvider.getKeySecret()
         );
 
         PaymentVerificationRequest req = new PaymentVerificationRequest(
@@ -207,9 +207,9 @@ public class PaymentIntegrationTest {
 
         String gatewayOrderId = orderResult.getGatewayOrderId();
         String gatewayPaymentId = "pay_idem_" + UUID.randomUUID().toString().substring(0, 8);
-        String signature = razorpayPaymentProvider.calculateHmacSha256(
+        String signature = paymentGatewayProvider.calculateHmacSha256(
                 gatewayOrderId + "|" + gatewayPaymentId,
-                razorpayPaymentProvider.getKeySecret()
+                paymentGatewayProvider.getKeySecret()
         );
 
         PaymentVerificationRequest req = new PaymentVerificationRequest(order.getId(), gatewayOrderId, gatewayPaymentId, signature);

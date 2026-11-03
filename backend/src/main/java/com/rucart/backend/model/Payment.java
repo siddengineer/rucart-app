@@ -57,16 +57,16 @@ public class Payment {
     private String customerName;
 
     @Column(length = 100)
-    private String gatewayOrderId; // Razorpay order_id
+    private String gatewayOrderId;
 
     @Column(length = 100)
-    private String gatewayPaymentId; // Razorpay pay_id
+    private String gatewayPaymentId;
 
     @Column(length = 255)
     private String gatewaySignature;
 
     @Column(length = 100)
-    private String gatewayRefundId; // Razorpay rfnd_id
+    private String gatewayRefundId;
 
     @Column(length = 500)
     private String errorMessage;

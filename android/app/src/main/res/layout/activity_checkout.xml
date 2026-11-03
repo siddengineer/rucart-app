@@ -244,14 +244,14 @@
                     android:layout_height="wrap_content"
                     android:padding="@dimen/spacing_medium">
 
-                    <!-- Pay Online (Razorpay) - Primary Default -->
+                    <!-- Pay Online - Primary Default -->
                     <RadioButton
                         android:id="@+id/rbOnline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:paddingVertical="8dp"
-                        android:text="💳 Pay Online (Razorpay)"
+                        android:text="💳 Pay Online (UPI, Cards, NetBanking)"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
