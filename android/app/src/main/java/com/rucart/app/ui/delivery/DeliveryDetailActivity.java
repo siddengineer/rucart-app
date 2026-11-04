@@ -391,6 +391,14 @@ public class DeliveryDetailActivity extends AppCompatActivity {
                 currentOrder = response.body().getData();
                 renderOrderDetails(currentOrder);
                 Toast.makeText(DeliveryDetailActivity.this, "Status updated: " + targetStatus, Toast.LENGTH_SHORT).show();
+
+                if ("OUT_FOR_DELIVERY".equalsIgnoreCase(targetStatus)) {
+                    Long riderId = com.rucart.app.util.SessionManager.getInstance().getUserId();
+                    String riderName = com.rucart.app.util.SessionManager.getInstance().getUserName();
+                    com.rucart.app.util.FirebaseTrackingManager.getInstance().startRiderTracking(DeliveryDetailActivity.this, orderId, riderId, riderName);
+                } else if ("DELIVERED".equalsIgnoreCase(targetStatus) || "DELIVERY_FAILED".equalsIgnoreCase(targetStatus) || "CANCELLED".equalsIgnoreCase(targetStatus)) {
+                    com.rucart.app.util.FirebaseTrackingManager.getInstance().stopRiderTracking();
+                }
             } else {
                 String msg = "Could not update order status.";
                 if (response.body() != null && response.body().getMessage() != null) {

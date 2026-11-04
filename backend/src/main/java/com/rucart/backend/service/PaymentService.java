@@ -63,13 +63,17 @@ public class PaymentService {
         String receiptNumber = "REC-" + LocalDateTime.now().getYear() + "-" + (10000 + new Random().nextInt(90000));
         String transactionId = "TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
+        PaymentStatus initialStatus = (method == PaymentMethod.UPI || method == PaymentMethod.ONLINE)
+                ? PaymentStatus.PENDING_VERIFICATION
+                : PaymentStatus.PENDING;
+
         Payment payment = new Payment(
                 order,
                 receiptNumber,
                 transactionId,
                 order.getGrandTotal(),
                 method != null ? method : PaymentMethod.CASH_ON_DELIVERY,
-                PaymentStatus.PENDING
+                initialStatus
         );
         payment.setOrderNumber(order.getOrderNumber());
         if (order.getCustomer() != null) {

@@ -130,8 +130,13 @@ public class OrderService {
         order.setStore(store);
         order.setStoreName(store.getName());
         order.setStatus(OrderStatus.ACCEPTED);
-        order.setPaymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.ONLINE);
-        order.setPaymentStatus(PaymentStatus.PENDING);
+        PaymentMethod selectedMethod = request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentMethod.CASH_ON_DELIVERY;
+        order.setPaymentMethod(selectedMethod);
+        if (selectedMethod == PaymentMethod.UPI || selectedMethod == PaymentMethod.ONLINE) {
+            order.setPaymentStatus(PaymentStatus.PENDING_VERIFICATION);
+        } else {
+            order.setPaymentStatus(PaymentStatus.PENDING);
+        }
         order.setSpecialInstructions(request.getSpecialInstructions());
         order.setOrderNumber(orderNumber);
         order.setDeliveryOtp(otp);

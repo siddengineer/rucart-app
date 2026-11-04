@@ -74,7 +74,8 @@ public class DeliveryHistoryAdapter extends RecyclerView.Adapter<DeliveryHistory
 
             if ("DELIVERED".equals(status)) {
                 tvHistoryStatusBadge.setBackgroundResource(R.drawable.bg_badge_green);
-                tvHistoryEarnings.setText("Earned: ₹ 35.00");
+                java.math.BigDecimal grandTotal = order.getGrandTotal() != null ? order.getGrandTotal() : java.math.BigDecimal.ZERO;
+                tvHistoryEarnings.setText("Order Total: ₹ " + String.format("%.2f", grandTotal));
                 tvHistoryEarnings.setTextColor(itemView.getContext().getResources().getColor(R.color.colorPrimary));
 
                 String note = order.getDeliveryNotes() != null && !order.getDeliveryNotes().isEmpty()

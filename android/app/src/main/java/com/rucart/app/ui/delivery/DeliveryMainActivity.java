@@ -14,6 +14,7 @@ import com.rucart.app.model.ApiResponse;
 import com.rucart.app.model.DeliveryDashboardDto;
 import com.rucart.app.model.DeliveryPartner;
 import com.rucart.app.model.DeliveryPartnerStatus;
+import com.rucart.app.model.Order;
 import com.rucart.app.ui.auth.RoleSelectionActivity;
 import com.rucart.app.util.SessionManager;
 import retrofit2.Call;
@@ -21,6 +22,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class DeliveryMainActivity extends AppCompatActivity {
 
@@ -28,16 +30,15 @@ public class DeliveryMainActivity extends AppCompatActivity {
     private TextView tvRiderName;
     private TextView tvRiderVehicle;
     private TextView tvRiderRating;
-    private TextView tvRiderEarnings;
-    private TextView tvRiderTotalEarnings;
+    private TextView tvRiderDeliveredTotalAmount;
+    private TextView tvRiderDeliveredOrdersCount;
     private TextView tvActiveDeliveriesCount;
     private TextView tvCompletedTodayCount;
     private TextView tvPendingPickupsCount;
     private TextView tvDeliveryIssuesCount;
 
-    private TextView btnStatusAvailable;
-    private TextView btnStatusBusy;
-    private TextView btnStatusOffline;
+    private TextView btnStatusActive;
+    private TextView btnStatusSleep;
 
     private MaterialCardView cardActiveDeliveries;
     private MaterialCardView cardCompletedToday;
@@ -81,16 +82,15 @@ public class DeliveryMainActivity extends AppCompatActivity {
         tvRiderName = findViewById(R.id.tvRiderName);
         tvRiderVehicle = findViewById(R.id.tvRiderVehicle);
         tvRiderRating = findViewById(R.id.tvRiderRating);
-        tvRiderEarnings = findViewById(R.id.tvRiderEarnings);
-        tvRiderTotalEarnings = findViewById(R.id.tvRiderTotalEarnings);
+        tvRiderDeliveredTotalAmount = findViewById(R.id.tvRiderDeliveredTotalAmount);
+        tvRiderDeliveredOrdersCount = findViewById(R.id.tvRiderDeliveredOrdersCount);
         tvActiveDeliveriesCount = findViewById(R.id.tvActiveDeliveriesCount);
         tvCompletedTodayCount = findViewById(R.id.tvCompletedTodayCount);
         tvPendingPickupsCount = findViewById(R.id.tvPendingPickupsCount);
         tvDeliveryIssuesCount = findViewById(R.id.tvDeliveryIssuesCount);
 
-        btnStatusAvailable = findViewById(R.id.btnStatusAvailable);
-        btnStatusBusy = findViewById(R.id.btnStatusBusy);
-        btnStatusOffline = findViewById(R.id.btnStatusOffline);
+        btnStatusActive = findViewById(R.id.btnStatusActive);
+        btnStatusSleep = findViewById(R.id.btnStatusSleep);
 
         cardActiveDeliveries = findViewById(R.id.cardActiveDeliveries);
         cardCompletedToday = findViewById(R.id.cardCompletedToday);
@@ -112,9 +112,8 @@ public class DeliveryMainActivity extends AppCompatActivity {
     private void setupListeners() {
         swipeRefreshDelivery.setOnRefreshListener(this::loadDashboard);
 
-        btnStatusAvailable.setOnClickListener(v -> updateRiderStatus(DeliveryPartnerStatus.AVAILABLE));
-        btnStatusBusy.setOnClickListener(v -> updateRiderStatus(DeliveryPartnerStatus.BUSY));
-        btnStatusOffline.setOnClickListener(v -> updateRiderStatus(DeliveryPartnerStatus.OFFLINE));
+        btnStatusActive.setOnClickListener(v -> updateRiderStatus(DeliveryPartnerStatus.AVAILABLE));
+        btnStatusSleep.setOnClickListener(v -> updateRiderStatus(DeliveryPartnerStatus.SLEEP));
 
         cardActiveDeliveries.setOnClickListener(v -> openOrders(DeliveryOrdersActivity.TAB_ACTIVE));
         btnViewActiveDeliveries.setOnClickListener(v -> openOrders(DeliveryOrdersActivity.TAB_ACTIVE));
@@ -155,12 +154,42 @@ public class DeliveryMainActivity extends AppCompatActivity {
                 } else {
                     renderFallbackDashboard();
                 }
+                loadDeliveredOrdersSummary();
             }
 
             @Override
             public void onFailure(Call<ApiResponse<DeliveryDashboardDto>> call, Throwable t) {
                 swipeRefreshDelivery.setRefreshing(false);
                 renderFallbackDashboard();
+                loadDeliveredOrdersSummary();
+            }
+        });
+    }
+
+    private void loadDeliveredOrdersSummary() {
+        ApiClient.getApiService().getDeliveryHistory("all").enqueue(new Callback<ApiResponse<List<Order>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<Order>>> call, Response<ApiResponse<List<Order>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null) {
+                    List<Order> orders = response.body().getData();
+                    int count = 0;
+                    BigDecimal sum = BigDecimal.ZERO;
+                    for (Order o : orders) {
+                        if ("DELIVERED".equals(o.getStatus())) {
+                            count++;
+                            if (o.getGrandTotal() != null) {
+                                sum = sum.add(o.getGrandTotal());
+                            }
+                        }
+                    }
+                    tvRiderDeliveredOrdersCount.setText(count + " Orders");
+                    tvRiderDeliveredTotalAmount.setText("₹ " + String.format("%.2f", sum));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse<List<Order>>> call, Throwable t) {
+                // Keep fallback
             }
         });
     }
@@ -175,16 +204,13 @@ public class DeliveryMainActivity extends AppCompatActivity {
         tvPendingPickupsCount.setText(String.valueOf(dto.getPendingPickupsCount()));
         tvDeliveryIssuesCount.setText(String.valueOf(dto.getDeliveryIssuesCount()));
 
-        tvRiderEarnings.setText("₹ " + String.format("%.2f", dto.getEarningsToday()));
-        tvRiderTotalEarnings.setText("₹ " + String.format("%.2f", dto.getEarningsTotal()));
-
         currentStatus = dto.getStatus();
         renderStatusButtons(currentStatus);
     }
 
     private void renderFallbackDashboard() {
-        tvRiderEarnings.setText("₹ 0.00");
-        tvRiderTotalEarnings.setText("₹ 0.00");
+        tvRiderDeliveredOrdersCount.setText("0 Orders");
+        tvRiderDeliveredTotalAmount.setText("₹ 0.00");
         tvActiveDeliveriesCount.setText("0");
         tvCompletedTodayCount.setText("0");
         tvPendingPickupsCount.setText("0");
@@ -199,28 +225,27 @@ public class DeliveryMainActivity extends AppCompatActivity {
             public void onResponse(Call<ApiResponse<DeliveryPartner>> call, Response<ApiResponse<DeliveryPartner>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     currentStatus = newStatus;
-                    Toast.makeText(DeliveryMainActivity.this, "Duty status: " + newStatus.name(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeliveryMainActivity.this, "Duty status: " + (newStatus == DeliveryPartnerStatus.AVAILABLE ? "Active (Online)" : "Sleep / Inactive"), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(DeliveryMainActivity.this, "Status updated to " + newStatus.name(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeliveryMainActivity.this, "Status updated", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<DeliveryPartner>> call, Throwable t) {
                 currentStatus = newStatus;
-                Toast.makeText(DeliveryMainActivity.this, "Status saved: " + newStatus.name(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(DeliveryMainActivity.this, "Status saved locally", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void renderStatusButtons(DeliveryPartnerStatus status) {
-        btnStatusAvailable.setBackgroundResource(status == DeliveryPartnerStatus.AVAILABLE ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
-        btnStatusAvailable.setTextColor(getResources().getColor(status == DeliveryPartnerStatus.AVAILABLE ? R.color.colorWhite : R.color.colorTextPrimary));
+        boolean isActive = (status == DeliveryPartnerStatus.AVAILABLE);
+        btnStatusActive.setBackgroundResource(isActive ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
+        btnStatusActive.setTextColor(getResources().getColor(isActive ? R.color.colorWhite : R.color.colorTextPrimary));
 
-        btnStatusBusy.setBackgroundResource(status == DeliveryPartnerStatus.BUSY ? R.drawable.bg_badge_orange : R.drawable.bg_button_secondary);
-        btnStatusBusy.setTextColor(getResources().getColor(status == DeliveryPartnerStatus.BUSY ? R.color.colorWhite : R.color.colorTextPrimary));
-
-        btnStatusOffline.setBackgroundResource(status == DeliveryPartnerStatus.OFFLINE ? R.drawable.bg_button_primary : R.drawable.bg_button_secondary);
-        btnStatusOffline.setTextColor(getResources().getColor(status == DeliveryPartnerStatus.OFFLINE ? R.color.colorWhite : R.color.colorTextPrimary));
+        boolean isSleep = (status == DeliveryPartnerStatus.SLEEP || status == DeliveryPartnerStatus.OFFLINE);
+        btnStatusSleep.setBackgroundResource(isSleep ? R.drawable.bg_badge_orange : R.drawable.bg_button_secondary);
+        btnStatusSleep.setTextColor(getResources().getColor(isSleep ? R.color.colorWhite : R.color.colorTextPrimary));
     }
 }

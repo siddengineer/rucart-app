@@ -32,7 +32,7 @@ public class OrderDetailActivity extends AppCompatActivity {
     private TextView stepPlaced, stepAccepted, stepPreparing, stepOutForDelivery, stepDelivered;
     private TextView tvOrderStoreName, tvOrderDeliveryAddr;
     private TextView tvReceiptNumber, tvPaymentMethod, tvOrderDetailTotal;
-    private Button btnDownloadReceipt, btnCancelOrder;
+    private Button btnDownloadReceipt, btnCancelOrder, btnTrackOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +76,26 @@ public class OrderDetailActivity extends AppCompatActivity {
         tvOrderDetailTotal = findViewById(R.id.tvOrderDetailTotal);
         btnDownloadReceipt = findViewById(R.id.btnDownloadReceipt);
         btnCancelOrder = findViewById(R.id.btnCancelOrder);
+        btnTrackOrder = findViewById(R.id.btnTrackOrder);
     }
 
     private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
         btnDownloadReceipt.setOnClickListener(v -> showReceiptDialog());
         btnCancelOrder.setOnClickListener(v -> confirmCancelOrder());
+        btnTrackOrder.setOnClickListener(v -> {
+            if (order != null) {
+                Intent intent = new Intent(this, LiveTrackingActivity.class);
+                intent.putExtra(LiveTrackingActivity.EXTRA_ORDER_ID, order.getId());
+                intent.putExtra(LiveTrackingActivity.EXTRA_ORDER_NUMBER, order.getOrderNumber());
+                intent.putExtra(LiveTrackingActivity.EXTRA_DELIVERY_ADDRESS, order.getDeliveryAddress());
+                if (order.getDeliveryPartner() != null) {
+                    intent.putExtra(LiveTrackingActivity.EXTRA_RIDER_NAME, order.getDeliveryPartner().getName());
+                    intent.putExtra(LiveTrackingActivity.EXTRA_RIDER_PHONE, order.getDeliveryPartner().getPhone());
+                }
+                startActivity(intent);
+            }
+        });
     }
 
     private void fetchOrder(Long orderId) {

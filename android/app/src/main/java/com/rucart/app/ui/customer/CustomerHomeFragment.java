@@ -173,6 +173,26 @@ public class CustomerHomeFragment extends Fragment {
         swipeRefresh.setRefreshing(true);
         loadCategories();
         loadProducts(null, null);
+        loadOffersAndBanners();
+    }
+
+    private void loadOffersAndBanners() {
+        if (getView() == null) return;
+        TextView tvTitle = getView().findViewById(R.id.tvHomeBannerTitle);
+        TextView tvSub = getView().findViewById(R.id.tvHomeBannerSubtitle);
+
+        ApiClient.getApiService().getActiveOffers().enqueue(new Callback<ApiResponse<List<com.rucart.app.model.Offer>>>() {
+            @Override
+            public void onResponse(Call<ApiResponse<List<com.rucart.app.model.Offer>>> call, Response<ApiResponse<List<com.rucart.app.model.Offer>>> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getData() != null && !response.body().getData().isEmpty()) {
+                    com.rucart.app.model.Offer offer = response.body().getData().get(0);
+                    if (tvTitle != null) tvTitle.setText(offer.getTitle());
+                    if (tvSub != null) tvSub.setText("Code: " + offer.getCode() + " • " + (offer.getDescription() != null ? offer.getDescription() : "Special Discount"));
+                }
+            }
+            @Override
+            public void onFailure(Call<ApiResponse<List<com.rucart.app.model.Offer>>> call, Throwable t) {}
+        });
     }
 
     private void loadCategories() {

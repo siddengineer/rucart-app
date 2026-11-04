@@ -45,6 +45,8 @@ public class AdminLoginActivity extends AppCompatActivity {
         btnAdminLogin = findViewById(R.id.btnAdminLogin);
         pbAdminLogin = findViewById(R.id.pbAdminLogin);
         tvBackToRoles = findViewById(R.id.tvBackToRoles);
+        etAdminPhone.setText("rucart.admin@gmail.com");
+        etAdminPassword.setText("rucart@2026");
     }
 
     private void setupListeners() {

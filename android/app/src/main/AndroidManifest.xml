@@ -3,6 +3,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
 
     <application
         android:name=".RucartApplication"
@@ -13,6 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Rucart"
         android:usesCleartextTraffic="true">
+
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDfCp5QHI7_cHl8Kdi3bSOTHcB_A4ZTHk4" />
 
         <!-- Splash Activity (Entry Point) -->
         <activity
@@ -222,6 +231,41 @@
             android:exported="false"
             android:label="Audit Logs" />
 
+<!-- 5. Live Tracking Activities -->
+        <activity
+            android:name=".ui.customer.LiveTrackingActivity"
+            android:exported="false"
+            android:label="Live Order Tracking" />
+
+        <activity
+            android:name=".ui.admin.AdminLiveTrackingActivity"
+            android:exported="false"
+            android:label="Fleet Live Tracking" />
+
+        <activity
+            android:name=".ui.admin.AdminRidersActivity"
+            android:exported="false"
+            android:label="Rider Management" />
+
+        <activity
+            android:name=".ui.admin.AdminStoreOwnersActivity"
+            android:exported="false"
+            android:label="Store Owner Management" />
+
+        <activity
+            android:name=".ui.admin.AdminInvoicesActivity"
+            android:exported="false"
+            android:label="Invoice Management" />
+
+        <activity
+            android:name=".ui.admin.AdminCommissionActivity"
+            android:exported="false"
+            android:label="Commission Management" />
+
+        <activity
+            android:name=".ui.admin.AdminOffersBannersActivity"
+            android:exported="false"
+            android:label="Offers and Banners" />
     </application>
 
 </manifest>

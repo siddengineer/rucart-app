@@ -3,6 +3,8 @@ package com.rucart.backend.service;
 import com.rucart.backend.dto.*;
 import com.rucart.backend.model.*;
 import com.rucart.backend.repository.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import java.security.SecureRandom;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,8 @@ public class AdminService {
     private final ProductService productService;
     private final OrderService orderService;
     private final PaymentService paymentService;
+    private final DeliveryPartnerRepository deliveryPartnerRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AdminService(UserRepository userRepository,
                         StoreRepository storeRepository,
@@ -39,7 +43,9 @@ public class AdminService {
                         AuditLogService auditLogService,
                         ProductService productService,
                         OrderService orderService,
-                        PaymentService paymentService) {
+                        PaymentService paymentService,
+                        DeliveryPartnerRepository deliveryPartnerRepository,
+                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.storeRepository = storeRepository;
         this.orderRepository = orderRepository;
@@ -51,6 +57,8 @@ public class AdminService {
         this.productService = productService;
         this.orderService = orderService;
         this.paymentService = paymentService;
+        this.deliveryPartnerRepository = deliveryPartnerRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // =========================================================================
@@ -564,5 +572,457 @@ public class AdminService {
             return auditLogService.getAuditLogsByActor(actor.trim());
         }
         return auditLogService.getAllAuditLogs();
+    }
+
+    // =========================================================================
+    // 9. RIDER MANAGEMENT
+    // =========================================================================
+
+    public List<RiderResponse> getAllRiders(String search) {
+        List<User> riders = userRepository.findByRole(Role.DELIVERY_PARTNER);
+        List<RiderResponse> list = new ArrayList<>();
+
+        for (User u : riders) {
+            if (search != null && !search.isBlank()) {
+                String s = search.trim().toLowerCase();
+                boolean matches = (u.getName() != null && u.getName().toLowerCase().contains(s)) ||
+                        (u.getPhone() != null && u.getPhone().contains(s)) ||
+                        (u.getEmail() != null && u.getEmail().toLowerCase().contains(s));
+                if (!matches) continue;
+            }
+
+            Optional<DeliveryPartner> dpOpt = deliveryPartnerRepository.findByUserId(u.getId());
+            RiderResponse resp = new RiderResponse();
+            resp.setUserId(u.getId());
+            resp.setName(u.getName());
+            resp.setPhone(u.getPhone());
+            resp.setEmail(u.getEmail());
+            resp.setAddress(u.getAddress());
+            resp.setActive(u.isActive());
+            resp.setCreatedAt(u.getCreatedAt());
+
+            if (dpOpt.isPresent()) {
+                DeliveryPartner dp = dpOpt.get();
+                resp.setId(dp.getId());
+                resp.setVehicleType(dp.getVehicleType());
+                resp.setVehicleNumber(dp.getVehicleNumber());
+                resp.setStatus(dp.getStatus());
+                resp.setTotalDeliveries(dp.getTotalDeliveries() != null ? dp.getTotalDeliveries() : 0);
+            } else {
+                resp.setStatus(u.isActive() ? DeliveryPartnerStatus.AVAILABLE : DeliveryPartnerStatus.OFFLINE);
+            }
+
+            // Calculate total delivered amount for this rider
+            List<Order> deliveredOrders = orderRepository.findByDeliveryPartnerIdAndStatusInOrderByCreatedAtDesc(
+                    u.getId(), List.of(OrderStatus.DELIVERED)
+            );
+            BigDecimal totalAmount = deliveredOrders.stream()
+                    .map(o -> o.getGrandTotal() != null ? o.getGrandTotal() : BigDecimal.ZERO)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            resp.setTotalDeliveredAmount(totalAmount);
+            resp.setTotalDeliveries(deliveredOrders.size());
+
+            list.add(resp);
+        }
+        return list;
+    }
+
+    @Transactional
+    public RiderResponse registerRider(RiderRegisterRequest request, String actor) {
+        if (userRepository.findByPhone(request.getPhone().trim()).isPresent()) {
+            throw new IllegalArgumentException("Mobile number is already registered: " + request.getPhone());
+        }
+
+        String autoPassword = "Rider@" + (1000 + new SecureRandom().nextInt(9000));
+        String hashedPassword = passwordEncoder.encode(autoPassword);
+
+        User user = new User(
+                request.getName().trim(),
+                request.getPhone().trim(),
+                request.getEmail() != null ? request.getEmail().trim() : null,
+                hashedPassword,
+                Role.DELIVERY_PARTNER,
+                request.getAddress() != null ? request.getAddress().trim() : null
+        );
+        user.setActive(true);
+        User savedUser = userRepository.save(user);
+
+        DeliveryPartner dp = new DeliveryPartner(
+                savedUser,
+                request.getVehicleType() != null ? request.getVehicleType().trim() : "Motorcycle",
+                request.getVehicleNumber() != null ? request.getVehicleNumber().trim() : "MH-12-REG",
+                "DL-" + (1000 + new SecureRandom().nextInt(9000))
+        );
+        dp.setStatus(DeliveryPartnerStatus.AVAILABLE);
+        
+        dp.setTotalDeliveries(0);
+        dp.setEarningsTotal(BigDecimal.ZERO);
+        DeliveryPartner savedDp = deliveryPartnerRepository.save(dp);
+
+        auditLogService.logAction(actor, "ADMIN", "REGISTER_RIDER", "USER",
+                String.valueOf(savedUser.getId()), "Registered new rider: " + savedUser.getName() + " (" + savedUser.getPhone() + ")", "SUCCESS");
+
+        RiderResponse resp = new RiderResponse();
+        resp.setId(savedDp.getId());
+        resp.setUserId(savedUser.getId());
+        resp.setName(savedUser.getName());
+        resp.setPhone(savedUser.getPhone());
+        resp.setEmail(savedUser.getEmail());
+        resp.setAddress(savedUser.getAddress());
+        resp.setVehicleType(savedDp.getVehicleType());
+        resp.setVehicleNumber(savedDp.getVehicleNumber());
+        resp.setStatus(savedDp.getStatus());
+        resp.setActive(true);
+        resp.setTotalDeliveries(0);
+        resp.setTotalDeliveredAmount(BigDecimal.ZERO);
+        resp.setGeneratedPassword(autoPassword);
+        resp.setCreatedAt(savedUser.getCreatedAt());
+        return resp;
+    }
+
+    @Transactional
+    public String resetRiderPassword(Long userId, String newPassword, String actor) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Rider user not found with id: " + userId));
+        if (user.getRole() != Role.DELIVERY_PARTNER) {
+            throw new IllegalArgumentException("Target user is not a delivery rider");
+        }
+
+        String passwordToSet = (newPassword != null && !newPassword.isBlank()) ? newPassword.trim() : ("Rider@" + (1000 + new SecureRandom().nextInt(9000)));
+        user.setPassword(passwordEncoder.encode(passwordToSet));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        auditLogService.logAction(actor, "ADMIN", "RESET_RIDER_PASSWORD", "USER",
+                String.valueOf(userId), "Reset password for rider: " + user.getName(), "SUCCESS");
+        return passwordToSet;
+    }
+
+    @Transactional
+    public RiderResponse updateRiderStatus(Long userId, String statusStr, String actor) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Rider not found with id: " + userId));
+        DeliveryPartner dp = deliveryPartnerRepository.findByUserId(userId)
+                .orElseGet(() -> new DeliveryPartner(user, "Motorcycle", "MH-12", "DL-MH12"));
+
+        if ("SUSPENDED".equalsIgnoreCase(statusStr) || "DEACTIVATE".equalsIgnoreCase(statusStr) || "INACTIVE".equalsIgnoreCase(statusStr)) {
+            user.setActive(false);
+            dp.setStatus(DeliveryPartnerStatus.SUSPENDED);
+            
+        } else {
+            user.setActive(true);
+            
+            if ("SLEEP".equalsIgnoreCase(statusStr)) {
+                dp.setStatus(DeliveryPartnerStatus.SLEEP);
+            } else if ("OFFLINE".equalsIgnoreCase(statusStr)) {
+                dp.setStatus(DeliveryPartnerStatus.OFFLINE);
+            } else {
+                dp.setStatus(DeliveryPartnerStatus.AVAILABLE);
+            }
+        }
+        userRepository.save(user);
+        DeliveryPartner savedDp = deliveryPartnerRepository.save(dp);
+
+        auditLogService.logAction(actor, "ADMIN", "UPDATE_RIDER_STATUS", "USER",
+                String.valueOf(userId), "Set rider " + user.getName() + " status to " + statusStr, "SUCCESS");
+
+        RiderResponse resp = new RiderResponse();
+        resp.setId(savedDp.getId());
+        resp.setUserId(user.getId());
+        resp.setName(user.getName());
+        resp.setPhone(user.getPhone());
+        resp.setEmail(user.getEmail());
+        resp.setVehicleType(savedDp.getVehicleType());
+        resp.setVehicleNumber(savedDp.getVehicleNumber());
+        resp.setStatus(savedDp.getStatus());
+        resp.setActive(user.isActive());
+        resp.setTotalDeliveries(savedDp.getTotalDeliveries() != null ? savedDp.getTotalDeliveries() : 0);
+        return resp;
+    }
+
+    public List<Order> getRiderDeliveredOrders(Long userId) {
+        return orderRepository.findByDeliveryPartnerIdAndStatusInOrderByCreatedAtDesc(
+                userId, List.of(OrderStatus.DELIVERED)
+        );
+    }
+
+    // =========================================================================
+    // 10. STORE OWNER MANAGEMENT
+    // =========================================================================
+
+    public List<StoreOwnerResponse> getAllStoreOwners(String search) {
+        List<User> owners = userRepository.findByRole(Role.STORE_OWNER);
+        List<StoreOwnerResponse> list = new ArrayList<>();
+
+        for (User u : owners) {
+            if (search != null && !search.isBlank()) {
+                String s = search.trim().toLowerCase();
+                boolean matches = (u.getName() != null && u.getName().toLowerCase().contains(s)) ||
+                        (u.getPhone() != null && u.getPhone().contains(s)) ||
+                        (u.getEmail() != null && u.getEmail().toLowerCase().contains(s));
+                if (!matches) continue;
+            }
+
+            Optional<Store> storeOpt = storeRepository.findByOwnerId(u.getId());
+            StoreOwnerResponse resp = new StoreOwnerResponse();
+            resp.setUserId(u.getId());
+            resp.setName(u.getName());
+            resp.setPhone(u.getPhone());
+            resp.setEmail(u.getEmail());
+            resp.setAddress(u.getAddress());
+            resp.setActive(u.isActive());
+            resp.setCreatedAt(u.getCreatedAt());
+
+            if (storeOpt.isPresent()) {
+                Store st = storeOpt.get();
+                resp.setStoreId(st.getId());
+                resp.setStoreName(st.getName());
+                resp.setStoreArea(st.getServiceAreas());
+                long count = orderRepository.countByStoreId(st.getId());
+                resp.setTotalOrders((int) count);
+                List<Order> orders = orderRepository.findByStoreIdOrderByCreatedAtDesc(st.getId());
+                BigDecimal sales = orders.stream()
+                        .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
+                        .map(o -> o.getGrandTotal() != null ? o.getGrandTotal() : BigDecimal.ZERO)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                resp.setTotalSales(sales);
+            } else {
+                resp.setTotalOrders(0);
+                resp.setTotalSales(BigDecimal.ZERO);
+            }
+            list.add(resp);
+        }
+        return list;
+    }
+
+    @Transactional
+    public StoreOwnerResponse registerStoreOwner(StoreOwnerRegisterRequest request, String actor) {
+        if (userRepository.findByPhone(request.getPhone().trim()).isPresent()) {
+            throw new IllegalArgumentException("Mobile number is already registered: " + request.getPhone());
+        }
+
+        String autoPassword = "Store@" + (1000 + new SecureRandom().nextInt(9000));
+        String hashedPassword = passwordEncoder.encode(autoPassword);
+
+        User user = new User(
+                request.getName().trim(),
+                request.getPhone().trim(),
+                request.getEmail() != null ? request.getEmail().trim() : null,
+                hashedPassword,
+                Role.STORE_OWNER,
+                request.getAddress() != null ? request.getAddress().trim() : null
+        );
+        user.setActive(true);
+        User savedUser = userRepository.save(user);
+
+        Store store = new Store(
+                request.getStoreName().trim(),
+                "Store operated by " + savedUser.getName(),
+                request.getAddress() != null ? request.getAddress().trim() : "Pune",
+                "Pune",
+                request.getPhone().trim(),
+                savedUser,
+                null
+        );
+        store.setServiceAreas(request.getStoreArea() != null ? request.getStoreArea().trim() : "Shivajinagar, Pune");
+        store.setActive(true);
+        store.setOpen(true);
+        Store savedStore = storeRepository.save(store);
+
+        auditLogService.logAction(actor, "ADMIN", "REGISTER_STORE_OWNER", "USER",
+                String.valueOf(savedUser.getId()), "Registered store owner: " + savedUser.getName() + " for store: " + savedStore.getName(), "SUCCESS");
+
+        StoreOwnerResponse resp = new StoreOwnerResponse();
+        resp.setUserId(savedUser.getId());
+        resp.setName(savedUser.getName());
+        resp.setPhone(savedUser.getPhone());
+        resp.setEmail(savedUser.getEmail());
+        resp.setAddress(savedUser.getAddress());
+        resp.setActive(true);
+        resp.setStoreId(savedStore.getId());
+        resp.setStoreName(savedStore.getName());
+        resp.setStoreArea(savedStore.getServiceAreas());
+        resp.setGeneratedPassword(autoPassword);
+        resp.setTotalOrders(0);
+        resp.setTotalSales(BigDecimal.ZERO);
+        resp.setCreatedAt(savedUser.getCreatedAt());
+        return resp;
+    }
+
+    @Transactional
+    public String resetStoreOwnerPassword(Long userId, String newPassword, String actor) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Store owner not found with id: " + userId));
+        if (user.getRole() != Role.STORE_OWNER) {
+            throw new IllegalArgumentException("Target user is not a store owner");
+        }
+
+        String passwordToSet = (newPassword != null && !newPassword.isBlank()) ? newPassword.trim() : ("Store@" + (1000 + new SecureRandom().nextInt(9000)));
+        user.setPassword(passwordEncoder.encode(passwordToSet));
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        auditLogService.logAction(actor, "ADMIN", "RESET_STORE_OWNER_PASSWORD", "USER",
+                String.valueOf(userId), "Reset password for store owner: " + user.getName(), "SUCCESS");
+        return passwordToSet;
+    }
+
+    @Transactional
+    public StoreOwnerResponse updateStoreOwnerStatus(Long userId, boolean active, String actor) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Store owner not found with id: " + userId));
+        user.setActive(active);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+
+        storeRepository.findByOwnerId(userId).ifPresent(st -> {
+            st.setActive(active);
+            if (!active) st.setOpen(false);
+            storeRepository.save(st);
+        });
+
+        auditLogService.logAction(actor, "ADMIN", "UPDATE_STORE_OWNER_STATUS", "USER",
+                String.valueOf(userId), "Set store owner " + user.getName() + " active status to " + active, "SUCCESS");
+
+        StoreOwnerResponse resp = new StoreOwnerResponse();
+        resp.setUserId(user.getId());
+        resp.setName(user.getName());
+        resp.setPhone(user.getPhone());
+        resp.setActive(active);
+        return resp;
+    }
+
+    public List<Order> getStoreOwnerOrders(Long userId) {
+        Optional<Store> st = storeRepository.findByOwnerId(userId);
+        if (st.isPresent()) {
+            return orderRepository.findByStoreIdOrderByCreatedAtDesc(st.get().getId());
+        }
+        return Collections.emptyList();
+    }
+
+    // =========================================================================
+    // 11. INVOICE MANAGEMENT
+    // =========================================================================
+
+    public List<InvoiceDto> getAllInvoices(String search, String paymentMethodFilter, String paymentStatusFilter) {
+        List<Order> orders = orderRepository.findAll();
+        List<InvoiceDto> list = new ArrayList<>();
+
+        for (Order o : orders) {
+            String pMethod = o.getPaymentMethod() != null ? o.getPaymentMethod().name().toUpperCase() : "CASH_ON_DELIVERY";
+            String pStatus = o.getPaymentStatus() != null ? o.getPaymentStatus().name() : "PENDING";
+
+            // Filter by Payment Method
+            if (paymentMethodFilter != null && !paymentMethodFilter.isBlank() && !"ALL".equalsIgnoreCase(paymentMethodFilter)) {
+                if ("COD".equalsIgnoreCase(paymentMethodFilter) && !pMethod.contains("CASH")) continue;
+                if (("QR".equalsIgnoreCase(paymentMethodFilter) || "UPI".equalsIgnoreCase(paymentMethodFilter)) && !pMethod.contains("UPI") && !pMethod.contains("ONLINE")) continue;
+            }
+
+            // Filter by Payment Status
+            if (paymentStatusFilter != null && !paymentStatusFilter.isBlank() && !"ALL".equalsIgnoreCase(paymentStatusFilter)) {
+                if (!pStatus.equalsIgnoreCase(paymentStatusFilter.trim())) continue;
+            }
+
+            // Search filter
+            if (search != null && !search.isBlank()) {
+                String s = search.trim().toLowerCase();
+                String invNum = "INV-" + o.getOrderNumber();
+                boolean matches = (o.getOrderNumber() != null && o.getOrderNumber().toLowerCase().contains(s)) ||
+                        invNum.toLowerCase().contains(s) ||
+                        (o.getCustomerName() != null && o.getCustomerName().toLowerCase().contains(s)) ||
+                        (o.getCustomerPhone() != null && o.getCustomerPhone().contains(s));
+                if (!matches) continue;
+            }
+
+            InvoiceDto dto = mapOrderToInvoice(o);
+            list.add(dto);
+        }
+        list.sort((a, b) -> b.getOrderDate().compareTo(a.getOrderDate()));
+        return list;
+    }
+
+    public InvoiceDto getInvoiceByOrderId(Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        return mapOrderToInvoice(order);
+    }
+
+    @Transactional
+    public InvoiceDto confirmInvoicePayment(Long orderId, String actor) {
+        Order order = orderService.getOrderById(orderId);
+        order.setPaymentStatus(PaymentStatus.COMPLETED);
+        if (order.getStatus() == OrderStatus.PLACED || order.getStatus() == OrderStatus.PAYMENT_PENDING) {
+            order.setStatus(OrderStatus.ACCEPTED);
+        }
+        order.setUpdatedAt(LocalDateTime.now());
+        Order saved = orderRepository.save(order);
+
+        paymentRepository.findByOrderId(orderId).ifPresent(p -> {
+            p.setPaymentStatus(PaymentStatus.COMPLETED);
+            p.setPaidAt(LocalDateTime.now());
+            paymentRepository.save(p);
+        });
+
+        auditLogService.logAction(actor, "ADMIN", "CONFIRM_INVOICE_PAYMENT", "ORDER",
+                String.valueOf(orderId), "Confirmed payment for order #" + order.getOrderNumber(), "SUCCESS");
+
+        return mapOrderToInvoice(saved);
+    }
+
+    private InvoiceDto mapOrderToInvoice(Order o) {
+        InvoiceDto dto = new InvoiceDto();
+        dto.setOrderId(o.getId());
+        dto.setOrderNumber(o.getOrderNumber());
+        dto.setInvoiceNumber("INV-" + o.getOrderNumber());
+        dto.setCustomerName(o.getCustomerName());
+        dto.setCustomerPhone(o.getCustomerPhone());
+        dto.setDeliveryAddress(o.getDeliveryAddress());
+        dto.setSubtotal(o.getItemTotal() != null ? o.getItemTotal() : BigDecimal.ZERO);
+        dto.setDeliveryFee(o.getDeliveryFee() != null ? o.getDeliveryFee() : new BigDecimal("20.00"));
+        dto.setGrandTotal(o.getGrandTotal() != null ? o.getGrandTotal() : BigDecimal.ZERO);
+        dto.setOrderDate(o.getCreatedAt());
+        dto.setDeliveredAt(o.getDeliveredAt());
+
+        if (o.getStore() != null) {
+            dto.setStoreName(o.getStore().getName());
+            dto.setStoreAddress(o.getStore().getAddress());
+        } else {
+            dto.setStoreName("RUCART Express Store");
+            dto.setStoreAddress("Shivajinagar, Pune");
+        }
+
+        // Payment Method Display
+        String pm = o.getPaymentMethod() != null ? o.getPaymentMethod().name().toUpperCase() : "CASH_ON_DELIVERY";
+        dto.setPaymentMethod(pm);
+        if (pm.contains("CASH")) {
+            dto.setPaymentMethodDisplay("Cash on Delivery (COD)");
+        } else {
+            dto.setPaymentMethodDisplay("UPI QR Payment");
+        }
+
+        // Payment Status Display
+        PaymentStatus ps = o.getPaymentStatus() != null ? o.getPaymentStatus() : PaymentStatus.PENDING;
+        dto.setPaymentStatus(ps.name());
+        if (ps == PaymentStatus.COMPLETED) {
+            dto.setPaymentStatusDisplay("Paid");
+        } else if (ps == PaymentStatus.PENDING_VERIFICATION) {
+            dto.setPaymentStatusDisplay("Pending Verification");
+        } else if (ps == PaymentStatus.FAILED) {
+            dto.setPaymentStatusDisplay("Failed");
+        } else {
+            dto.setPaymentStatusDisplay("Pending");
+        }
+
+        // Items
+        List<InvoiceDto.InvoiceItemDto> itemDtos = new ArrayList<>();
+        if (o.getItems() != null) {
+            for (OrderItem oi : o.getItems()) {
+                String pName = oi.getProduct() != null ? oi.getProduct().getName() : "Grocery Item";
+                BigDecimal uPrice = oi.getUnitPrice() != null ? oi.getUnitPrice() : BigDecimal.ZERO;
+                BigDecimal tPrice = oi.getTotalPrice() != null ? oi.getTotalPrice() : uPrice.multiply(BigDecimal.valueOf(oi.getQuantity()));
+                itemDtos.add(new InvoiceDto.InvoiceItemDto(pName, oi.getQuantity(), uPrice, tPrice));
+            }
+        }
+        dto.setItems(itemDtos);
+        return dto;
     }
 }

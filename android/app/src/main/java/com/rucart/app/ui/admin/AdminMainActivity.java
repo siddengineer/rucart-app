@@ -29,7 +29,7 @@ public class AdminMainActivity extends AppCompatActivity {
     private TextView tvAdminPendingOrders, tvAdminCancelledOrders, tvAdminRevenue, tvAdminInventoryAlerts;
     private TextView tvAdminGreeting;
     private ImageButton btnRefreshDashboard, btnAdminLogout;
-    private MaterialCardView cardNavStores, cardNavProducts, cardNavOrders, cardNavUsers, cardNavReports, cardNavAuditLogs, cardInventoryAlerts;
+    private MaterialCardView cardNavStores, cardNavProducts, cardNavOrders, cardNavUsers, cardNavReports, cardNavAuditLogs, cardInventoryAlerts, cardNavRiders, cardNavStoreOwners, cardNavInvoices, cardNavCommission, cardNavOffers;
     private AppCompatButton btnQuickAddStore, btnQuickAddProduct, btnAdminSwitchRole;
 
     @Override
@@ -78,6 +78,11 @@ public class AdminMainActivity extends AppCompatActivity {
         cardNavReports = findViewById(R.id.cardNavReports);
         cardNavAuditLogs = findViewById(R.id.cardNavAuditLogs);
         cardInventoryAlerts = findViewById(R.id.cardInventoryAlerts);
+        cardNavRiders = findViewById(R.id.cardNavRiders);
+        cardNavStoreOwners = findViewById(R.id.cardNavStoreOwners);
+        cardNavInvoices = findViewById(R.id.cardNavInvoices);
+        cardNavCommission = findViewById(R.id.cardNavCommission);
+        cardNavOffers = findViewById(R.id.cardNavOffers);
 
         btnQuickAddStore = findViewById(R.id.btnQuickAddStore);
         btnQuickAddProduct = findViewById(R.id.btnQuickAddProduct);
@@ -115,6 +120,11 @@ public class AdminMainActivity extends AppCompatActivity {
         cardNavUsers.setOnClickListener(v -> startActivity(new Intent(this, AdminUsersActivity.class)));
         cardNavReports.setOnClickListener(v -> startActivity(new Intent(this, AdminReportsActivity.class)));
         cardNavAuditLogs.setOnClickListener(v -> startActivity(new Intent(this, AdminAuditLogsActivity.class)));
+        cardNavRiders.setOnClickListener(v -> startActivity(new Intent(this, AdminRidersActivity.class)));
+        cardNavStoreOwners.setOnClickListener(v -> startActivity(new Intent(this, AdminStoreOwnersActivity.class)));
+        cardNavInvoices.setOnClickListener(v -> startActivity(new Intent(this, AdminInvoicesActivity.class)));
+        cardNavCommission.setOnClickListener(v -> startActivity(new Intent(this, AdminCommissionActivity.class)));
+        cardNavOffers.setOnClickListener(v -> startActivity(new Intent(this, AdminOffersBannersActivity.class)));
 
         // Clicking inventory alerts navigates to products view with low stock
         cardInventoryAlerts.setOnClickListener(v -> {

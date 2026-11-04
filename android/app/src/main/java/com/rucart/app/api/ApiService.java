@@ -343,4 +343,98 @@ public interface ApiService {
 
     @DELETE("notifications/{id}")
     Call<ApiResponse<Void>> deleteNotification(@Path("id") Long id);
+// ==========================================
+    // Admin Rider Management
+    // ==========================================
+    @GET("admin/riders")
+    Call<ApiResponse<List<RiderResponse>>> getAllRiders(@Query("search") String search);
+
+    @POST("admin/riders")
+    Call<ApiResponse<RiderResponse>> registerRider(@Body RiderRegisterRequest request);
+
+    @POST("admin/riders/{userId}/reset-password")
+    Call<ApiResponse<Map<String, String>>> resetRiderPassword(@Path("userId") Long userId, @Body Map<String, String> body);
+
+    @PATCH("admin/riders/{userId}/status")
+    Call<ApiResponse<RiderResponse>> updateRiderStatus(@Path("userId") Long userId, @Body Map<String, String> body);
+
+    @GET("admin/riders/{userId}/delivered-orders")
+    Call<ApiResponse<List<Order>>> getRiderDeliveredOrders(@Path("userId") Long userId);
+
+    // ==========================================
+    // Admin Store Owner Management
+    // ==========================================
+    @GET("admin/store-owners")
+    Call<ApiResponse<List<StoreOwnerResponse>>> getAllStoreOwners(@Query("search") String search);
+
+    @POST("admin/store-owners")
+    Call<ApiResponse<StoreOwnerResponse>> registerStoreOwner(@Body StoreOwnerRegisterRequest request);
+
+    @POST("admin/store-owners/{userId}/reset-password")
+    Call<ApiResponse<Map<String, String>>> resetStoreOwnerPassword(@Path("userId") Long userId, @Body Map<String, String> body);
+
+    @PATCH("admin/store-owners/{userId}/status")
+    Call<ApiResponse<StoreOwnerResponse>> updateStoreOwnerStatus(@Path("userId") Long userId, @Body Map<String, Boolean> body);
+
+    @GET("admin/store-owners/{userId}/orders")
+    Call<ApiResponse<List<Order>>> getStoreOwnerOrders(@Path("userId") Long userId);
+
+    // ==========================================
+    // Admin Invoices
+    // ==========================================
+    @GET("admin/invoices")
+    Call<ApiResponse<List<InvoiceDto>>> getAllInvoices(@Query("search") String search, @Query("paymentMethod") String paymentMethod, @Query("paymentStatus") String paymentStatus);
+
+    @GET("admin/invoices/{orderId}")
+    Call<ApiResponse<InvoiceDto>> getInvoiceByOrderId(@Path("orderId") Long orderId);
+
+    @POST("admin/invoices/{orderId}/confirm-payment")
+    Call<ApiResponse<InvoiceDto>> confirmInvoicePayment(@Path("orderId") Long orderId);
+
+    @GET("admin/invoices/{orderId}/pdf")
+    @Streaming
+    Call<ResponseBody> downloadInvoicePdf(@Path("orderId") Long orderId);
+
+    // ==========================================
+    // Admin Commission
+    // ==========================================
+    @GET("admin/commission")
+    Call<ApiResponse<RiderCommissionDto>> getCurrentCommission();
+
+    @PUT("admin/commission")
+    Call<ApiResponse<RiderCommissionDto>> updateCommission(@Body Map<String, Object> body);
+
+    // ==========================================
+    // Admin Offers & Promotional Banners
+    // ==========================================
+    @GET("admin/offers")
+    Call<ApiResponse<List<Offer>>> getAllAdminOffers();
+
+    @POST("admin/offers")
+    Call<ApiResponse<Offer>> createOffer(@Body Offer offer);
+
+    @PUT("admin/offers/{id}")
+    Call<ApiResponse<Offer>> updateOffer(@Path("id") Long id, @Body Offer offer);
+
+    @DELETE("admin/offers/{id}")
+    Call<ApiResponse<Void>> deleteOffer(@Path("id") Long id);
+
+    @GET("admin/banners")
+    Call<ApiResponse<List<PromotionalBanner>>> getAllAdminBanners();
+
+    @POST("admin/banners")
+    Call<ApiResponse<PromotionalBanner>> createBanner(@Body PromotionalBanner banner);
+
+    @PUT("admin/banners/{id}")
+    Call<ApiResponse<PromotionalBanner>> updateBanner(@Path("id") Long id, @Body PromotionalBanner banner);
+
+    @DELETE("admin/banners/{id}")
+    Call<ApiResponse<Void>> deleteBanner(@Path("id") Long id);
+
+    // Customer active offers and banners
+    @GET("offers/active")
+    Call<ApiResponse<List<Offer>>> getActiveOffers();
+
+    @GET("banners/active")
+    Call<ApiResponse<List<PromotionalBanner>>> getActiveBanners();
 }

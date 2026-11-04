@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447841710041",
+    "project_id": "rucartstore-513713",
+    "storage_bucket": "rucartstore-513713.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447841710041:android:4ec8426a5bb5f850e0f3c8",
+        "android_client_info": {
+          "package_name": "com.rucart.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfRFUPHAWwe9TJqa_k3d1vme-hGs5Q9eI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

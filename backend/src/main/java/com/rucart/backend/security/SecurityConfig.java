@@ -61,6 +61,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/v1/stores/**").hasAnyRole("STORE_OWNER", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/v1/inventory/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/inventory/validate").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/offers/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/banners/**").permitAll()
 
                         // Product management (Store Owner and Admin)
                         .requestMatchers(HttpMethod.POST, "/api/v1/products/**").hasAnyRole("STORE_OWNER", "ADMIN")
