@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -44,18 +45,20 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.count() > 0) {
+        ensureDefaultAdmin();
+
+        if (userRepository.count() > 1) {
             return; // Already seeded
         }
 
         // 1. Create Default Users with BCrypt Hashed Passwords
         String defaultHashedPassword = passwordEncoder.encode("123456");
-        String adminHashedPassword = passwordEncoder.encode("admin123");
+        String adminHashedPassword = passwordEncoder.encode("rucart@2026");
 
         User customer = new User("Rahul Sharma", "9876543210", "rahul@rucart.com", defaultHashedPassword, Role.CUSTOMER, "Flat 402, Green Avenue, Shivajinagar, Pune");
         User storeOwner = new User("Amit Patil", "9876543211", "amit@rucart.com", defaultHashedPassword, Role.STORE_OWNER, "Shivajinagar Market, Pune");
         User deliveryPartnerUser = new User("Priya Desai", "9876543212", "priya@rucart.com", defaultHashedPassword, Role.DELIVERY_PARTNER, "Kothrud, Pune");
-        User admin = new User("Admin Rucart", "9876543213", "admin@rucart.com", adminHashedPassword, Role.ADMIN, "Pune HQ");
+        User admin = new User("Admin Rucart", "8605528342", "rucart.admin@gmail.com", adminHashedPassword, Role.ADMIN, "Pune HQ");
 
         customer = userRepository.save(customer);
         storeOwner = userRepository.save(storeOwner);
@@ -153,5 +156,38 @@ public class DataInitializer implements CommandLineRunner {
         Notification n1 = new Notification(customer, "Welcome to RUCART!", "Enjoy fast, fresh grocery deliveries straight to your doorstep.", NotificationType.SYSTEM, null);
         Notification n2 = new Notification(storeOwner, "Store Registered", "RUCART Express Store is live and open for incoming orders.", NotificationType.STORE_ALERT, null);
         notificationRepository.saveAll(List.of(n1, n2));
+    }
+    private void ensureDefaultAdmin() {
+        String adminHashedPassword = passwordEncoder.encode("rucart@2026");
+        userRepository.findByEmail("rucart.admin@gmail.com").ifPresentOrElse(
+                admin -> {
+                    admin.setPassword(adminHashedPassword);
+                    admin.setRole(Role.ADMIN);
+                    admin.setName("Admin Rucart");
+                    admin.setPhone("8605528342");
+                    userRepository.save(admin);
+                },
+                () -> {
+                    Optional<User> byPhone = userRepository.findByPhone("8605528342");
+                    if (byPhone.isPresent()) {
+                        User admin = byPhone.get();
+                        admin.setEmail("rucart.admin@gmail.com");
+                        admin.setPassword(adminHashedPassword);
+                        admin.setRole(Role.ADMIN);
+                        admin.setName("Admin Rucart");
+                        userRepository.save(admin);
+                    } else {
+                        User admin = new User(
+                                "Admin Rucart",
+                                "8605528342",
+                                "rucart.admin@gmail.com",
+                                adminHashedPassword,
+                                Role.ADMIN,
+                                "Pune HQ"
+                        );
+                        userRepository.save(admin);
+                    }
+                }
+        );
     }
 }

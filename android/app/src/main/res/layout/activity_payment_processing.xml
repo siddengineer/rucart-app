@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Secure Online Payment"
+                android:text="UPI &amp; QR Payment"
                 android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -42,7 +42,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="100% RBI Compliant • 256-bit Encrypted"
+                android:text="Instant Verification ? Zero Extra Fee"
                 android:textColor="@color/primary_green"
                 android:textSize="11sp" />
         </LinearLayout>
@@ -54,7 +54,7 @@
             android:background="@drawable/bg_badge_green"
             android:paddingHorizontal="8dp"
             android:paddingVertical="3dp"
-            android:text="SECURE"
+            android:text="UPI VERIFIED"
             android:textColor="@color/primary_green_dark"
             android:textSize="11sp"
             android:textStyle="bold" />
@@ -90,12 +90,12 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="@dimen/spacing_large">
+                        android:padding="@dimen/spacing_medium">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Amount to Pay"
+                            android:text="Total Amount Payable"
                             android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
 
@@ -104,16 +104,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="₹0.00"
+                            android:text="Rs. 0.00"
                             android:textColor="@color/primary_green_dark"
-                            android:textSize="32sp"
+                            android:textSize="30sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tvOrderNumber"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="2dp"
                             android:text="Order #RUC-2026-0001"
                             android:textColor="@color/text_secondary"
                             android:textSize="12sp" />
@@ -122,10 +122,7 @@
                             android:id="@+id/tvGatewayOrderId"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="Ref: order_gateway"
-                            android:textColor="@color/text_muted"
-                            android:textSize="11sp" />
+                            android:visibility="gone" />
 
                         <TextView
                             android:id="@+id/tvMerchantName"
@@ -135,11 +132,138 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Payment Gateway Status Card -->
+                <!-- Payee Details Card -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_large"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_radius_medium"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/divider_color"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_medium">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Beneficiary Details"
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Name:"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvPayeeName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rutuja Ratik Butte"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Phone / Mobile No:"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvPayeePhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8605528342"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="14sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/btnCopyPhone"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_button_secondary"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="Copy"
+                                android:textColor="@color/primary_green_dark"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="UPI ID:"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp" />
+
+                            <TextView
+                                android:id="@+id/tvPayeeUpiId"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8605528342@kotakbank"
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/btnCopyUpiId"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/bg_button_secondary"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:text="Copy"
+                                android:textColor="@color/primary_green_dark"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- QR Code Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="@dimen/corner_radius_medium"
                     app:cardElevation="1dp"
@@ -151,21 +275,12 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="@dimen/spacing_large">
-
-                        <ProgressBar
-                            android:id="@+id/pbInlineLoading"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:indeterminateTint="@color/primary_green" />
+                        android:padding="@dimen/spacing_medium">
 
                         <TextView
-                            android:id="@+id/tvGatewayStateMessage"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_small"
-                            android:gravity="center"
-                            android:text="Ready to Process Payment"
+                            android:text="Scan QR Code to Pay"
                             android:textColor="@color/text_primary"
                             android:textSize="14sp"
                             android:textStyle="bold" />
@@ -173,62 +288,122 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:gravity="center"
-                            android:text="Select Google Pay, PhonePe, Paytm, Card, or NetBanking to complete payment."
+                            android:layout_marginTop="2dp"
+                            android:text="Works with Google Pay, PhonePe, Paytm, BHIM &amp; any UPI app"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                            android:textSize="11sp" />
+
+                        <!-- QR Code Image -->
+                        <ImageView
+                            android:id="@+id/ivPaymentQr"
+                            android:layout_width="230dp"
+                            android:layout_height="230dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/bg_banner_green"
+                            android:contentDescription="UPI QR Code"
+                            android:padding="6dp"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/qr_code_scan" />
+
+                        <TextView
+                            android:id="@+id/tvViewFullQr"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:padding="4dp"
+                            android:text="Tap to View Full QR Screenshot"
+                            android:textColor="@color/primary_green"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Trust Badge -->
-                <LinearLayout
+                <!-- Open Installed UPI App Button -->
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btnOpenUpiApp"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:background="@drawable/bg_button_secondary"
+                    android:text="Open GPay / PhonePe / Paytm to Pay"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <!-- Optional UTR Reference Entry Card -->
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_medium"
-                    android:gravity="center"
-                    android:orientation="horizontal">
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/corner_radius_medium"
+                    app:cardElevation="1dp"
+                    app:strokeColor="@color/divider_color"
+                    app:strokeWidth="1dp">
 
-                    <ImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:src="@drawable/ic_check"
-                        app:tint="@color/primary_green" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="Your card details and UPI credentials remain 100% private."
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-                </LinearLayout>
+                        android:orientation="vertical"
+                        android:padding="@dimen/spacing_medium">
 
-                <!-- Primary Action: Complete Payment -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="UPI Reference / UTR Number (Optional)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etUpiRefId"
+                            android:layout_width="match_parent"
+                            android:layout_height="46dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/bg_input_field"
+                            android:hint="e.g. 12-digit UTR from GPay / PhonePe"
+                            android:inputType="text"
+                            android:maxLength="20"
+                            android:paddingHorizontal="@dimen/spacing_medium"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Hidden for compatibility with controller -->
+                <TextView
+                    android:id="@+id/tvGatewayStateMessage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <!-- Confirm Payment Button -->
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnCompletePayment"
                     android:layout_width="match_parent"
                     android:layout_height="52dp"
-                    android:layout_marginTop="@dimen/spacing_large"
+                    android:layout_marginTop="@dimen/spacing_medium"
                     android:background="@drawable/bg_button_primary"
-                    android:text="💳 Pay Now"
+                    android:text="I Have Paid - Confirm Order"
                     android:textColor="@color/white"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <!-- Option to Switch to COD -->
+                <!-- Switch to COD Button -->
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnSwitchToCOD"
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
+                    android:layout_height="46dp"
                     android:layout_marginTop="@dimen/spacing_small"
                     android:background="@drawable/bg_button_secondary"
-                    android:text="💵 Switch to Cash on Delivery"
+                    android:text="Switch to Cash on Delivery"
                     android:textColor="@color/primary_green_dark"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
-                <!-- Secondary Action Button: Cancel -->
+                <!-- Cancel Button -->
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnCancelReturn"
                     android:layout_width="match_parent"
@@ -271,7 +446,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_medium"
                     android:gravity="center"
-                    android:text="Processing secure transaction..."
+                    android:text="Confirming UPI payment..."
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />

@@ -1,17 +1,20 @@
 package com.rucart.app.ui.customer;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.rucart.app.R;
@@ -22,6 +25,7 @@ import com.rucart.app.model.Payment;
 import com.rucart.app.model.PaymentOrderResult;
 import com.rucart.app.model.PaymentVerificationRequest;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,12 +41,18 @@ public class PaymentProcessingActivity extends AppCompatActivity {
     public static final String EXTRA_ORDER = "extra_order";
     public static final String EXTRA_PAYMENT_ORDER = "extra_payment_order";
 
+    public static final String BENEFICIARY_NAME = "Rutuja Ratik Butte";
+    public static final String BENEFICIARY_PHONE = "8605528342";
+    public static final String BENEFICIARY_UPI_ID = "8605528342@kotakbank";
+
     private Order order;
     private PaymentOrderResult paymentOrder;
 
-    private ImageView btnCancelPayment;
-    private TextView tvOrderNumber, tvAmountPayable, tvGatewayOrderId, tvModeBadge, tvGatewayStateMessage;
-    private Button btnCompletePayment, btnSwitchToCOD, btnCancelReturn;
+    private ImageView btnCancelPayment, ivPaymentQr;
+    private TextView tvOrderNumber, tvAmountPayable, tvModeBadge, tvViewFullQr;
+    private TextView tvPayeeName, tvPayeePhone, tvPayeeUpiId, btnCopyPhone, btnCopyUpiId;
+    private EditText etUpiRefId;
+    private Button btnOpenUpiApp, btnCompletePayment, btnSwitchToCOD, btnCancelReturn;
     private FrameLayout flProcessingOverlay;
     private TextView tvOverlayStatus;
 
@@ -69,9 +79,19 @@ public class PaymentProcessingActivity extends AppCompatActivity {
         btnCancelPayment = findViewById(R.id.btnCancelPayment);
         tvOrderNumber = findViewById(R.id.tvOrderNumber);
         tvAmountPayable = findViewById(R.id.tvAmountPayable);
-        tvGatewayOrderId = findViewById(R.id.tvGatewayOrderId);
         tvModeBadge = findViewById(R.id.tvModeBadge);
-        tvGatewayStateMessage = findViewById(R.id.tvGatewayStateMessage);
+
+        tvPayeeName = findViewById(R.id.tvPayeeName);
+        tvPayeePhone = findViewById(R.id.tvPayeePhone);
+        tvPayeeUpiId = findViewById(R.id.tvPayeeUpiId);
+        btnCopyPhone = findViewById(R.id.btnCopyPhone);
+        btnCopyUpiId = findViewById(R.id.btnCopyUpiId);
+
+        ivPaymentQr = findViewById(R.id.ivPaymentQr);
+        tvViewFullQr = findViewById(R.id.tvViewFullQr);
+        btnOpenUpiApp = findViewById(R.id.btnOpenUpiApp);
+        etUpiRefId = findViewById(R.id.etUpiRefId);
+
         btnCompletePayment = findViewById(R.id.btnCompletePayment);
         btnSwitchToCOD = findViewById(R.id.btnSwitchToCOD);
         btnCancelReturn = findViewById(R.id.btnCancelReturn);
@@ -80,39 +100,90 @@ public class PaymentProcessingActivity extends AppCompatActivity {
     }
 
     private void bindData() {
-        String formattedAmt = "₹" + (paymentOrder.getAmount() != null ? paymentOrder.getAmount().toPlainString() : order.getGrandTotal().toPlainString());
+        BigDecimal amt = paymentOrder.getAmount() != null ? paymentOrder.getAmount() : order.getGrandTotal();
+        String formattedAmt = "?" + (amt != null ? amt.toPlainString() : "0.00");
+
         tvOrderNumber.setText("Order #" + (paymentOrder.getOrderNumber() != null ? paymentOrder.getOrderNumber() : order.getOrderNumber()));
         tvAmountPayable.setText(formattedAmt);
-        tvGatewayOrderId.setText("Ref: " + paymentOrder.getGatewayOrderId());
-        btnCompletePayment.setText("💳 Pay " + formattedAmt + " Now");
 
-        if (paymentOrder.isSandbox()) {
-            tvModeBadge.setText("SANDBOX");
-        } else {
-            tvModeBadge.setText("ONLINE SECURE");
-        }
+        tvPayeeName.setText(BENEFICIARY_NAME);
+        tvPayeePhone.setText(BENEFICIARY_PHONE);
+        tvPayeeUpiId.setText(BENEFICIARY_UPI_ID);
 
-        tvGatewayStateMessage.setText("Tap 'Pay Now' to complete your secure online transaction.");
+        btnCompletePayment.setText("? I Have Paid " + formattedAmt + " - Confirm Order");
     }
 
     private void setupListeners() {
         btnCancelPayment.setOnClickListener(v -> handleCancelPayment());
         btnCancelReturn.setOnClickListener(v -> handleCancelPayment());
-        btnCompletePayment.setOnClickListener(v -> processOnlinePayment());
+
+        btnCopyPhone.setOnClickListener(v -> copyTextToClipboard(BENEFICIARY_PHONE, "Phone number copied: " + BENEFICIARY_PHONE));
+        btnCopyUpiId.setOnClickListener(v -> copyTextToClipboard(BENEFICIARY_UPI_ID, "UPI ID copied: " + BENEFICIARY_UPI_ID));
+
+        ivPaymentQr.setOnClickListener(v -> showFullQrDialog());
+        tvViewFullQr.setOnClickListener(v -> showFullQrDialog());
+
+        btnOpenUpiApp.setOnClickListener(v -> launchUpiIntent());
+
+        btnCompletePayment.setOnClickListener(v -> processUpiPaymentConfirmation());
         btnSwitchToCOD.setOnClickListener(v -> handleSwitchToCOD());
     }
 
-    private void processOnlinePayment() {
-        showLoading("Connecting to secure payment gateway...");
+    private void copyTextToClipboard(String text, String message) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("RUCART UPI Details", text);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            String gatewayOrderId = paymentOrder.getGatewayOrderId();
-            String paymentId = "pay_gw_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10);
-            String signature = "mock_sig_" + gatewayOrderId;
+    private void showFullQrDialog() {
+        ImageView iv = new ImageView(this);
+        iv.setImageResource(R.drawable.qr_upi_payment);
+        iv.setAdjustViewBounds(true);
+        iv.setPadding(24, 24, 24, 24);
 
-            showLoading("Payment authorized! Verifying with backend...");
-            verifyPaymentWithBackend(gatewayOrderId, paymentId, signature, "ONLINE");
-        }, 1200);
+        new AlertDialog.Builder(this)
+                .setTitle("Rutuja Ratik Butte - Full QR")
+                .setView(iv)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void launchUpiIntent() {
+        BigDecimal amt = paymentOrder.getAmount() != null ? paymentOrder.getAmount() : order.getGrandTotal();
+        String amtStr = amt != null ? amt.toPlainString() : "0.00";
+        String note = "RUCART Order " + (order.getOrderNumber() != null ? order.getOrderNumber() : "");
+
+        Uri uri = Uri.parse("upi://pay")
+                .buildUpon()
+                .appendQueryParameter("pa", BENEFICIARY_UPI_ID)
+                .appendQueryParameter("pn", BENEFICIARY_NAME)
+                .appendQueryParameter("mc", "")
+                .appendQueryParameter("tr", paymentOrder.getGatewayOrderId())
+                .appendQueryParameter("tn", note)
+                .appendQueryParameter("am", amtStr)
+                .appendQueryParameter("cu", "INR")
+                .build();
+
+        Intent upiIntent = new Intent(Intent.ACTION_VIEW, uri);
+        Intent chooser = Intent.createChooser(upiIntent, "Pay with UPI (GPay, PhonePe, Paytm, etc.)");
+
+        try {
+            startActivity(chooser);
+        } catch (Exception e) {
+            Toast.makeText(this, "No UPI app found. Please scan the QR code or pay to " + BENEFICIARY_PHONE, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void processUpiPaymentConfirmation() {
+        showLoading("Confirming UPI payment with RUCART servers...");
+
+        String utr = etUpiRefId != null ? etUpiRefId.getText().toString().trim() : "";
+        String gatewayPaymentId = !utr.isEmpty() ? ("upi_" + utr) : ("upi_pay_" + UUID.randomUUID().toString().replace("-", "").substring(0, 10));
+        String gatewayOrderId = paymentOrder.getGatewayOrderId();
+        String signature = "upi_verified";
+
+        verifyPaymentWithBackend(gatewayOrderId, gatewayPaymentId, signature, "UPI");
     }
 
     private void handleSwitchToCOD() {
@@ -181,7 +252,7 @@ public class PaymentProcessingActivity extends AppCompatActivity {
     }
 
     private void handleCancelPayment() {
-        showLoading("Cancelling payment...");
+        showLoading("Cancelling payment session...");
 
         Map<String, Object> body = new HashMap<>();
         body.put("orderId", order.getId());

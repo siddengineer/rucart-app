@@ -155,7 +155,7 @@ public class CheckoutActivity extends AppCompatActivity {
         btnPlaceOrder.setEnabled(false);
         pbCheckout.setVisibility(View.VISIBLE);
 
-        String paymentMethod = "ONLINE";
+        String paymentMethod = "UPI";
         int checkedId = rgPaymentMethod.getCheckedRadioButtonId();
         if (checkedId == R.id.rbCOD) {
             paymentMethod = "CASH_ON_DELIVERY";

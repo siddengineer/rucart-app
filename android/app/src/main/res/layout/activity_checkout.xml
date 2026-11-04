@@ -245,25 +245,41 @@
                     android:padding="@dimen/spacing_medium">
 
                     <!-- Pay Online - Primary Default -->
+                    <!-- Pay via UPI / Mobile No / QR Code -->
                     <RadioButton
                         android:id="@+id/rbOnline"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="true"
                         android:paddingVertical="8dp"
-                        android:text="💳 Pay Online (UPI, Cards, NetBanking)"
+                        android:text="Pay via UPI / Mobile No / QR Code"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="32dp"
                         android:layout_marginBottom="8dp"
-                        android:text="UPI (GPay / PhonePe / Paytm), Cards, NetBanking &amp; Wallets"
-                        android:textColor="@color/primary_green_dark"
-                        android:textSize="12sp" />
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Name: Rutuja Ratik Butte"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Ph / UPI: 8605528342 (Scan QR / GPay / PhonePe / Paytm)"
+                            android:textColor="@color/primary_green_dark"
+                            android:textSize="12sp" />
+                    </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
@@ -277,7 +293,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingVertical="8dp"
-                        android:text="💵 Cash on Delivery"
+                        android:text="Cash on Delivery (COD)"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
                         android:textStyle="bold" />
@@ -286,7 +302,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="32dp"
-                        android:text="Pay cash or UPI at your doorstep upon arrival"
+                        android:text="Pay cash at your doorstep upon package arrival"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </RadioGroup>
