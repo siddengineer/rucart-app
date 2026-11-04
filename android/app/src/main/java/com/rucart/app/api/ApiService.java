@@ -19,6 +19,19 @@ public interface ApiService {
     @GET("auth/users/{id}")
     Call<ApiResponse<User>> getUser(@Path("id") Long id);
 
+    // MSG91 & OTP Authentication
+    @GET("auth/msg91/config")
+    Call<ApiResponse<Map<String, String>>> getMsg91Config();
+
+    @POST("auth/msg91/verify")
+    Call<ApiResponse<AuthResponse>> verifyMsg91Token(@Body Map<String, Object> body);
+
+    @POST("auth/otp/send")
+    Call<ApiResponse<Map<String, Object>>> sendOtp(@Body Map<String, Object> body);
+
+    @POST("auth/otp/verify")
+    Call<ApiResponse<AuthResponse>> verifyOtp(@Body Map<String, Object> body);
+
     // Categories
     @GET("categories")
     Call<ApiResponse<List<Category>>> getCategories();
@@ -278,6 +291,9 @@ public interface ApiService {
 
     @POST("delivery/orders/{id}/out-for-delivery")
     Call<ApiResponse<Order>> markOutForDelivery(@Path("id") Long orderId);
+
+    @POST("delivery/orders/{id}/generate-otp")
+    Call<ApiResponse<Order>> generateDeliveryOtp(@Path("id") Long orderId);
 
     @POST("delivery/orders/{id}/complete")
     Call<ApiResponse<Order>> completeDeliveryOrder(@Path("id") Long orderId, @Body Map<String, String> body);

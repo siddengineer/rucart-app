@@ -135,6 +135,15 @@ public class DeliveryPartnerController {
         return ResponseEntity.ok(ApiResponse.ok("Order #" + order.getOrderNumber() + " is now out for delivery", order));
     }
 
+    @PostMapping("/orders/{orderId}/generate-otp")
+    @PreAuthorize("hasAnyRole('DELIVERY_PARTNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Order>> generateDeliveryOtp(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long orderId) {
+        Order order = orderService.generateAndSendDeliveryOtp(orderId, userDetails.getId());
+        return ResponseEntity.ok(ApiResponse.ok("Delivery verification code sent to customer", order));
+    }
+
     @PostMapping("/orders/{orderId}/complete")
     @PreAuthorize("hasAnyRole('DELIVERY_PARTNER', 'ADMIN')")
     public ResponseEntity<ApiResponse<Order>> completeDelivery(
@@ -142,7 +151,8 @@ public class DeliveryPartnerController {
             @PathVariable Long orderId,
             @RequestBody(required = false) Map<String, String> body) {
         String notes = body != null ? body.get("notes") : null;
-        Order order = orderService.completeDelivery(orderId, userDetails.getId(), notes);
+        String otp = body != null ? body.get("otp") : null;
+        Order order = orderService.completeDelivery(orderId, userDetails.getId(), otp, notes);
         return ResponseEntity.ok(ApiResponse.ok("Order #" + order.getOrderNumber() + " marked as DELIVERED", order));
     }
 

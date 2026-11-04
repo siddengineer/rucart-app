@@ -36,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPassword;
     private ImageView ivTogglePassword;
     private Button btnContinue;
+    private Button btnLoginWithOtp;
     private ProgressBar pbLogin;
     private TextView tvGoToRegister;
     private TextView tvForgotPassword;
@@ -61,6 +62,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword = findViewById(R.id.etPassword);
         ivTogglePassword = findViewById(R.id.ivTogglePassword);
         btnContinue = findViewById(R.id.btnContinue);
+        btnLoginWithOtp = findViewById(R.id.btnLoginWithOtp);
         pbLogin = findViewById(R.id.pbLogin);
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
@@ -95,6 +97,15 @@ public class LoginActivity extends AppCompatActivity {
         tvForgotPassword.setOnClickListener(v -> showForgotPasswordDialog());
 
         btnContinue.setOnClickListener(v -> performLogin());
+
+        btnLoginWithOtp.setOnClickListener(v -> {
+            String phone = etPhone.getText().toString().trim();
+            Intent intent = new Intent(LoginActivity.this, Msg91OtpActivity.class);
+            if (!phone.isEmpty()) {
+                intent.putExtra(Msg91OtpActivity.EXTRA_PHONE, phone);
+            }
+            startActivity(intent);
+        });
 
         tvGoToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);

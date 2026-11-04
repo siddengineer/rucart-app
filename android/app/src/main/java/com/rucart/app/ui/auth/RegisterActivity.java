@@ -116,6 +116,18 @@ public class RegisterActivity extends AppCompatActivity {
         });
 
         btnRegister.setOnClickListener(v -> performRegister());
+
+        android.view.View btnRegisterWithOtp = findViewById(R.id.btnRegisterWithOtp);
+        if (btnRegisterWithOtp != null) {
+            btnRegisterWithOtp.setOnClickListener(v -> {
+                String phone = etPhone.getText().toString().trim();
+                android.content.Intent intent = new android.content.Intent(RegisterActivity.this, Msg91OtpActivity.class);
+                if (!phone.isEmpty()) {
+                    intent.putExtra(Msg91OtpActivity.EXTRA_PHONE, phone);
+                }
+                startActivity(intent);
+            });
+        }
     }
 
     private void performRegister() {

@@ -26,6 +26,51 @@
         android:textColor="@color/colorPrimaryDark"
         android:textSize="13sp" />
 
+    <!-- Customer Verification OTP Input -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-bold"
+        android:text="Customer Verification Code (4-digit OTP) *"
+        android:textColor="@color/colorTextPrimary"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etDeliveryOtpInput"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_edit_text"
+            android:gravity="center"
+            android:hint="4-digit OTP"
+            android:inputType="number"
+            android:letterSpacing="0.2"
+            android:maxLength="4"
+            android:paddingHorizontal="14dp"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnGenerateOtpInDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_button_secondary"
+            android:text="📲 Send OTP"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,7 +83,7 @@
     <EditText
         android:id="@+id/etDeliveryCompletionNotes"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="70dp"
         android:layout_marginTop="6dp"
         android:background="@drawable/bg_edit_text"
         android:gravity="top|start"

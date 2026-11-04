@@ -43,6 +43,12 @@
             android:exported="false"
             android:label="Register Account" />
 
+        <!-- MSG91 OTP Verification Screen -->
+        <activity
+            android:name=".ui.auth.Msg91OtpActivity"
+            android:exported="false"
+            android:label="Verify OTP" />
+
         <!-- Product Detail Screen -->
         <activity
             android:name=".ui.customer.ProductDetailActivity"

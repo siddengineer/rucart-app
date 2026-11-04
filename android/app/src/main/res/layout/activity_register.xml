@@ -294,6 +294,17 @@
             android:textSize="@dimen/text_subheading"
             android:textStyle="bold" />
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRegisterWithOtp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_button_secondary"
+            android:text="Verify &amp; Register with OTP (MSG91)"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
         <ProgressBar
             android:id="@+id/pbRegister"
             android:layout_width="32dp"

@@ -49,6 +49,7 @@ public class OrderService {
     private final PaymentService paymentService;
     private final NotificationService notificationService;
     private final DeliveryPartnerRepository deliveryPartnerRepository;
+    private final Msg91Service msg91Service;
 
     public OrderService(OrderRepository orderRepository,
                         UserRepository userRepository,
@@ -59,7 +60,8 @@ public class OrderService {
                         StoreAssignmentService assignmentService,
                         PaymentService paymentService,
                         NotificationService notificationService,
-                        DeliveryPartnerRepository deliveryPartnerRepository) {
+                        DeliveryPartnerRepository deliveryPartnerRepository,
+                        Msg91Service msg91Service) {
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.storeRepository = storeRepository;
@@ -70,6 +72,7 @@ public class OrderService {
         this.paymentService = paymentService;
         this.notificationService = notificationService;
         this.deliveryPartnerRepository = deliveryPartnerRepository;
+        this.msg91Service = msg91Service;
     }
 
     /**
@@ -518,6 +521,11 @@ public class OrderService {
 
     @Transactional
     public Order completeDelivery(Long orderId, Long partnerUserId, String notes) {
+        return completeDelivery(orderId, partnerUserId, null, notes);
+    }
+
+    @Transactional
+    public Order completeDelivery(Long orderId, Long partnerUserId, String otp, String notes) {
         Order order = getOrderById(orderId);
         verifyDeliveryPartnerAccess(order, partnerUserId);
 
@@ -527,6 +535,13 @@ public class OrderService {
         }
         if (order.getStatus() != OrderStatus.OUT_FOR_DELIVERY && order.getStatus() != OrderStatus.PICKED_UP) {
             throw new IllegalStateException("Cannot complete delivery from status: " + order.getStatus());
+        }
+
+        // Verify customer verification OTP if set
+        if (otp != null && !otp.isBlank()) {
+            if (order.getDeliveryOtp() != null && !order.getDeliveryOtp().trim().equalsIgnoreCase(otp.trim())) {
+                throw new IllegalArgumentException("Invalid delivery verification code. Please ask the customer for the correct 4-digit OTP.");
+            }
         }
 
         order.setStatus(OrderStatus.DELIVERED);
@@ -564,6 +579,42 @@ public class OrderService {
         );
 
         return updated;
+    }
+
+    /**
+     * Generates a fresh 4-digit verification OTP and sends it to the customer via MSG91 SMS & notification.
+     */
+    @Transactional
+    public Order generateAndSendDeliveryOtp(Long orderId, Long partnerUserId) {
+        Order order = getOrderById(orderId);
+        verifyDeliveryPartnerAccess(order, partnerUserId);
+
+        if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot generate delivery OTP for order in status: " + order.getStatus());
+        }
+
+        String otp = String.format("%04d", new Random().nextInt(10000));
+        order.setDeliveryOtp(otp);
+        order.setUpdatedAt(LocalDateTime.now());
+        Order saved = orderRepository.save(order);
+
+        String customerPhone = order.getCustomerPhone();
+        if (customerPhone != null && !customerPhone.isBlank()) {
+            msg91Service.sendOtpSms(customerPhone, otp, "Order #" + order.getOrderNumber() + " Delivery Verification");
+        }
+
+        if (order.getCustomer() != null) {
+            notificationService.sendNotification(
+                    order.getCustomer().getId(),
+                    "Delivery Verification Code",
+                    "Your delivery OTP for Order #" + order.getOrderNumber() + " is " + otp + ". Share this code with the delivery partner upon arrival.",
+                    NotificationType.ORDER_UPDATE,
+                    order.getOrderNumber()
+            );
+        }
+
+        log.info("Delivery partner #{} generated OTP for Order #{}", partnerUserId, order.getOrderNumber());
+        return saved;
     }
 
     @Transactional
