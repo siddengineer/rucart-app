@@ -106,7 +106,7 @@
                     android:layout_height="48dp"
                     android:layout_marginTop="6dp"
                     android:background="@drawable/bg_edit_text"
-                    android:hint="e.g. 9876543212"
+                    android:hint="Enter registered phone number"
                     android:inputType="phone"
                     android:maxLength="10"
                     android:paddingHorizontal="14dp"
@@ -136,19 +136,6 @@
                     android:textColor="@color/colorTextPrimary"
                     android:textColorHint="@color/colorTextHint"
                     android:textSize="14sp" />
-
-                <!-- Quick Fill Chip -->
-                <TextView
-                    android:id="@+id/tvDeliveryQuickFill"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingVertical="4dp"
-                    android:text="⚡ Quick Fill Demo Partner (Priya Desai)"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="13sp" />
 
                 <!-- Login Button -->
                 <androidx.appcompat.widget.AppCompatButton

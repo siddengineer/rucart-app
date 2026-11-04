@@ -28,7 +28,6 @@ public class DeliveryLoginActivity extends AppCompatActivity {
     private EditText etDeliveryPassword;
     private AppCompatButton btnDeliveryLogin;
     private ProgressBar pbDeliveryLogin;
-    private TextView tvDeliveryQuickFill;
     private TextView tvBackToRoles;
 
     @Override
@@ -45,16 +44,10 @@ public class DeliveryLoginActivity extends AppCompatActivity {
         etDeliveryPassword = findViewById(R.id.etDeliveryPassword);
         btnDeliveryLogin = findViewById(R.id.btnDeliveryLogin);
         pbDeliveryLogin = findViewById(R.id.pbDeliveryLogin);
-        tvDeliveryQuickFill = findViewById(R.id.tvDeliveryQuickFill);
         tvBackToRoles = findViewById(R.id.tvBackToRoles);
     }
 
     private void setupListeners() {
-        tvDeliveryQuickFill.setOnClickListener(v -> {
-            etDeliveryPhone.setText("9876543212");
-            etDeliveryPassword.setText("123456");
-            Toast.makeText(this, "Demo Delivery Partner credentials filled", Toast.LENGTH_SHORT).show();
-        });
 
         btnDeliveryLogin.setOnClickListener(v -> performDeliveryLogin());
 

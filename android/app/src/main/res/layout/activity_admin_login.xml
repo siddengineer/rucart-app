@@ -98,7 +98,7 @@
                         android:layout_height="48dp"
                         android:layout_marginTop="6dp"
                         android:background="@drawable/bg_input_field"
-                        android:hint="e.g. 9876543213"
+                        android:hint="Admin mobile or username"
                         android:inputType="phone"
                         android:maxLength="15"
                         android:paddingHorizontal="14dp"
@@ -126,19 +126,6 @@
                         android:paddingHorizontal="14dp"
                         android:textColor="@color/text_primary"
                         android:textSize="14sp" />
-
-                    <!-- Quick Fill Button for Convenience -->
-                    <TextView
-                        android:id="@+id/tvAdminQuickFill"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:layout_marginTop="10dp"
-                        android:padding="4dp"
-                        android:text="Fill Default Admin (9876543213)"
-                        android:textColor="@color/primary_green"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
 
                     <!-- Progress Bar -->
                     <ProgressBar

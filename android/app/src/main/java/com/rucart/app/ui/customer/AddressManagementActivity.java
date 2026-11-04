@@ -102,22 +102,14 @@ public class AddressManagementActivity extends AppCompatActivity {
                         SessionManager.getInstance().setSelectedAddress(list.get(0));
                     }
                 } else {
-                    List<CustomerAddress> fallback = getFallbackAddresses();
-                    adapter.setAddresses(fallback, 1L);
-                    if (current == null) {
-                        SessionManager.getInstance().setSelectedAddress(fallback.get(0));
-                    }
+                    adapter.setAddresses(new ArrayList<>(), null);
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse<List<CustomerAddress>>> call, Throwable t) {
                 pbAddresses.setVisibility(View.GONE);
-                List<CustomerAddress> fallback = getFallbackAddresses();
-                adapter.setAddresses(fallback, 1L);
-                if (current == null) {
-                    SessionManager.getInstance().setSelectedAddress(fallback.get(0));
-                }
+                adapter.setAddresses(new ArrayList<>(), null);
             }
         });
     }
@@ -144,38 +136,5 @@ public class AddressManagementActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
-    }
-
-    private List<CustomerAddress> getFallbackAddresses() {
-        List<CustomerAddress> list = new ArrayList<>();
-        CustomerAddress a1 = new CustomerAddress(
-                "HOME",
-                SessionManager.getInstance().getUserName() != null ? SessionManager.getInstance().getUserName() : "Rahul Sharma",
-                SessionManager.getInstance().getUserPhone() != null ? SessionManager.getInstance().getUserPhone() : "9876543210",
-                "Flat 402, Green Avenue, Lane 3",
-                "Shivajinagar",
-                "Pune",
-                "411005",
-                true
-        );
-        a1.setId(1L);
-        a1.setLandmark("Near City Pride");
-
-        CustomerAddress a2 = new CustomerAddress(
-                "OFFICE",
-                SessionManager.getInstance().getUserName() != null ? SessionManager.getInstance().getUserName() : "Rahul Sharma",
-                SessionManager.getInstance().getUserPhone() != null ? SessionManager.getInstance().getUserPhone() : "9876543210",
-                "Tech Park Phase 1, Hinjewadi",
-                "Hinjewadi",
-                "Pune",
-                "411057",
-                false
-        );
-        a2.setId(2L);
-        a2.setLandmark("Tower 3, 4th Floor");
-
-        list.add(a1);
-        list.add(a2);
-        return list;
     }
 }

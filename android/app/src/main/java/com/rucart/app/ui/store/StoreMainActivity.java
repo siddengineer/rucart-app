@@ -420,15 +420,15 @@ public class StoreMainActivity extends AppCompatActivity implements
 
     private void populateProfile() {
         SessionManager session = SessionManager.getInstance();
-        String name = session.getUserName() != null ? session.getUserName() : "Mr. Sharma";
+        String name = session.getUserName() != null ? session.getUserName() : "Store Owner";
         if (tvStoreGreeting != null) {
             tvStoreGreeting.setText("Hello, " + name + "!");
         }
         tvStoreProfileOwnerName.setText(name);
-        tvStoreProfilePhone.setText(session.getUserPhone() != null ? session.getUserPhone() : "9876543211");
-        tvStoreProfileStoreName.setText("Sharma Kirana • RUCART Hub");
-        tvStoreProfileStoreId.setText("#1 (Central Hub)");
-        tvStoreProfileArea.setText("Shop 4, Market Yard, Shivajinagar, Pune");
+        tvStoreProfilePhone.setText(session.getUserPhone() != null && !session.getUserPhone().isEmpty() ? session.getUserPhone() : "N/A");
+        String storeName = session.getSelectedStoreName(); tvStoreProfileStoreName.setText(storeName != null ? storeName : "RUCART Store");
+        Long storeId = session.getSelectedStoreId(); tvStoreProfileStoreId.setText(storeId != null ? "#" + storeId : "");
+        String area = session.getSelectedServiceArea(); tvStoreProfileArea.setText(area != null ? area : "");
     }
 
     // --- Backend API Calls ---
@@ -833,7 +833,6 @@ public class StoreMainActivity extends AppCompatActivity implements
         final EditText etStock = new EditText(this);
         etStock.setHint("Initial Stock (e.g. 50)");
         etStock.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        etStock.setText("50");
         layout.addView(etStock);
 
         new AlertDialog.Builder(this)

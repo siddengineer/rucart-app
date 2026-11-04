@@ -231,7 +231,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="Deliver to: Flat 402, Green Avenue, Pune"
+                        android:text="Deliver to: Customer Address"
                         android:textColor="@color/text_secondary"
                         android:textSize="@dimen/text_caption" />
                 </LinearLayout>

@@ -196,19 +196,6 @@
                 app:tint="@color/text_secondary" />
         </LinearLayout>
 
-        <!-- Quick Fill Helper for Evaluation -->
-        <TextView
-            android:id="@+id/tvQuickFill"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingVertical="4dp"
-            android:text="⚡ Auto-fill Customer: 9876543210 / 123456"
-            android:textColor="@color/primary_green"
-            android:textSize="12sp"
-            android:textStyle="bold" />
-
         <!-- Login Button -->
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnContinue"

@@ -107,7 +107,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Flat 402, Green Avenue, Lane 3, Shivajinagar, Pune"
+                    android:text="Delivery Address"
                     android:textColor="@color/text_primary"
                     android:textSize="13sp" />
 

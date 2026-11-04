@@ -126,8 +126,8 @@ public class DeliveryDetailActivity extends AppCompatActivity {
 
         btnCallStore.setOnClickListener(v -> {
             String phone = (currentOrder != null && currentOrder.getStore() != null && currentOrder.getStore().getPhone() != null)
-                    ? currentOrder.getStore().getPhone() : "9876543211";
-            openDialer(phone);
+                    ? currentOrder.getStore().getPhone() : "";
+            if (!phone.isEmpty()) { openDialer(phone); } else { Toast.makeText(this, "Store phone number not available", Toast.LENGTH_SHORT).show(); }
         });
 
         btnCopyCustomerAddress.setOnClickListener(v -> {
@@ -141,8 +141,9 @@ public class DeliveryDetailActivity extends AppCompatActivity {
         });
 
         btnCallCustomer.setOnClickListener(v -> {
-            String phone = currentOrder != null ? currentOrder.getCustomerPhone() : "9876543210";
-            openDialer(phone);
+            String phone = (currentOrder != null && currentOrder.getCustomerPhone() != null)
+                    ? currentOrder.getCustomerPhone() : "";
+            if (!phone.isEmpty()) { openDialer(phone); } else { Toast.makeText(this, "Customer phone number not available", Toast.LENGTH_SHORT).show(); }
         });
 
         btnPrimaryWorkflowAction.setOnClickListener(v -> handlePrimaryWorkflowClick());

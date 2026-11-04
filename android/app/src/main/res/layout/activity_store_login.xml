@@ -111,7 +111,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
-                android:hint="9876543211 or username"
+                android:hint="Enter phone or username"
                 android:inputType="text"
                 android:textColor="@color/text_primary"
                 android:textSize="@dimen/text_body" />
@@ -157,19 +157,6 @@
                 android:src="@drawable/ic_visibility"
                 app:tint="@color/text_secondary" />
         </LinearLayout>
-
-        <!-- Quick Fill Preset -->
-        <TextView
-            android:id="@+id/tvStoreQuickFill"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_small"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingVertical="4dp"
-            android:text="⚡ Auto-fill Store Owner: 9876543211 / 123456"
-            android:textColor="@color/accent_orange"
-            android:textSize="12sp"
-            android:textStyle="bold" />
 
         <!-- Login Button -->
         <androidx.appcompat.widget.AppCompatButton

@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="👤 Rahul Sharma • 9876543210"
+            android:text="👤 Customer"
             android:textColor="@color/text_primary"
             android:textSize="13sp" />
 
@@ -61,7 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:text="📍 Delivery: Flat 402, Green Avenue, Shivajinagar"
+            android:text="📍 Delivery Address"
             android:textColor="@color/text_secondary"
             android:textSize="12sp" />
 

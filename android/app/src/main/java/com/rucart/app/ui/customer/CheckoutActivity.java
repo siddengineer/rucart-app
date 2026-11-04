@@ -86,12 +86,12 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private void updateAddressDisplay() {
         String address = SessionManager.getInstance().getSelectedAddress();
-        if (address != null && !address.isEmpty()) {
+        if (address != null && !address.trim().isEmpty()) {
             tvAddressTitle.setText("Deliver to Selected Address");
             tvFullAddress.setText(address);
         } else {
-            tvAddressTitle.setText("Deliver to Home");
-            tvFullAddress.setText("Flat 402, Green Avenue, Lane 3, Shivajinagar, Pune - 411005");
+            tvAddressTitle.setText("Delivery Address");
+            tvFullAddress.setText("No delivery address selected. Tap 'CHANGE' to choose or add an address.");
         }
     }
 
@@ -162,8 +162,12 @@ public class CheckoutActivity extends AppCompatActivity {
         }
 
         String fullAddressText = SessionManager.getInstance().getSelectedAddress();
-        if (fullAddressText == null || fullAddressText.isEmpty()) {
-            fullAddressText = "Flat 402, Green Avenue, Shivajinagar, Pune";
+        if (fullAddressText == null || fullAddressText.trim().isEmpty()) {
+            btnPlaceOrder.setEnabled(true);
+            pbCheckout.setVisibility(View.GONE);
+            Toast.makeText(this, "Please select or add a delivery address first", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(CheckoutActivity.this, AddressManagementActivity.class));
+            return;
         }
         String instructions = etInstructions.getText().toString().trim();
         if (!instructions.isEmpty()) {

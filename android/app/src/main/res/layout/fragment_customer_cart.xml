@@ -177,7 +177,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Flat 402, Green Avenue, Shivajinagar, Pune"
+                        android:text="Select delivery address"
                         android:textColor="@color/text_secondary"
                         android:textSize="@dimen/text_caption" />
                 </LinearLayout>

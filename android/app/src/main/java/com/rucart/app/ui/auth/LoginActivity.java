@@ -37,7 +37,6 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView ivTogglePassword;
     private Button btnContinue;
     private ProgressBar pbLogin;
-    private TextView tvQuickFill;
     private TextView tvGoToRegister;
     private TextView tvForgotPassword;
     private TextView tvSkipLogin;
@@ -63,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         ivTogglePassword = findViewById(R.id.ivTogglePassword);
         btnContinue = findViewById(R.id.btnContinue);
         pbLogin = findViewById(R.id.pbLogin);
-        tvQuickFill = findViewById(R.id.tvQuickFill);
         tvGoToRegister = findViewById(R.id.tvGoToRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvSkipLogin = findViewById(R.id.tvSkipLogin);
@@ -91,13 +89,6 @@ public class LoginActivity extends AppCompatActivity {
                 ivTogglePassword.setImageResource(R.drawable.ic_visibility);
             }
             etPassword.setSelection(etPassword.getText().length());
-        });
-
-        // Quick Fill for easy evaluation
-        tvQuickFill.setOnClickListener(v -> {
-            etPhone.setText("9876543210");
-            etPassword.setText("123456");
-            Toast.makeText(this, "Demo Customer credentials filled", Toast.LENGTH_SHORT).show();
         });
 
         // Forgot password flow

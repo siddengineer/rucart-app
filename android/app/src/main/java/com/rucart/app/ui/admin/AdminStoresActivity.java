@@ -284,7 +284,7 @@ public class AdminStoresActivity extends AppCompatActivity implements AdminStore
         layout.addView(etAddress);
 
         EditText etCity = new EditText(this);
-        etCity.setText("Pune");
+        etCity.setHint("City (e.g. Pune)");
         layout.addView(etCity);
 
         EditText etAreas = new EditText(this);
@@ -292,7 +292,7 @@ public class AdminStoresActivity extends AppCompatActivity implements AdminStore
         layout.addView(etAreas);
 
         EditText etPhone = new EditText(this);
-        etPhone.setHint("Phone (e.g. 9876543211)");
+        etPhone.setHint("Store Contact Phone (10 digits)");
         layout.addView(etPhone);
 
         new AlertDialog.Builder(this)
@@ -305,8 +305,8 @@ public class AdminStoresActivity extends AppCompatActivity implements AdminStore
                     String areas = etAreas.getText().toString().trim();
                     String phone = etPhone.getText().toString().trim();
 
-                    if (name.isEmpty() || address.isEmpty()) {
-                        Toast.makeText(this, "Store name and address are required", Toast.LENGTH_SHORT).show();
+                    if (name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+                        Toast.makeText(this, "Store name, address, and phone are required", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -315,7 +315,7 @@ public class AdminStoresActivity extends AppCompatActivity implements AdminStore
                     req.setAddress(address);
                     req.setCity(city.isEmpty() ? "Pune" : city);
                     req.setServiceAreas(areas.isEmpty() ? "Pune" : areas);
-                    req.setPhone(phone.isEmpty() ? "9876543211" : phone);
+                    req.setPhone(phone);
                     req.setActive(true);
                     req.setOpen(true);
 

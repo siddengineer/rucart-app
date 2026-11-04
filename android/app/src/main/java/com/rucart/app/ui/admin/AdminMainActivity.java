@@ -171,7 +171,7 @@ public class AdminMainActivity extends AppCompatActivity {
         layout.addView(etAddress);
 
         EditText etCity = new EditText(this);
-        etCity.setText("Pune");
+        etCity.setHint("City (e.g. Pune)");
         layout.addView(etCity);
 
         EditText etAreas = new EditText(this);
@@ -192,8 +192,8 @@ public class AdminMainActivity extends AppCompatActivity {
                     String areas = etAreas.getText().toString().trim();
                     String phone = etPhone.getText().toString().trim();
 
-                    if (name.isEmpty() || address.isEmpty()) {
-                        Toast.makeText(this, "Store name and address are required", Toast.LENGTH_SHORT).show();
+                    if (name.isEmpty() || address.isEmpty() || phone.isEmpty()) {
+                        Toast.makeText(this, "Store name, address, and phone are required", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -202,7 +202,7 @@ public class AdminMainActivity extends AppCompatActivity {
                     req.setAddress(address);
                     req.setCity(city.isEmpty() ? "Pune" : city);
                     req.setServiceAreas(areas.isEmpty() ? "Pune" : areas);
-                    req.setPhone(phone.isEmpty() ? "9876543211" : phone);
+                    req.setPhone(phone);
                     req.setActive(true);
                     req.setOpen(true);
 

@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_small"
                 android:layout_weight="1"
-                android:text="Rahul Sharma"
+                android:text="Recipient Name"
                 android:textColor="@color/text_primary"
                 android:textSize="@dimen/text_body"
                 android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:lineSpacingExtra="2dp"
-            android:text="Flat 402, Green Avenue, Lane 3, Shivajinagar, Pune - 411005"
+            android:text="Delivery Address"
             android:textColor="@color/text_secondary"
             android:textSize="@dimen/text_body" />
 
@@ -67,7 +67,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Phone: +91 9876543210"
+            android:text="Phone"
             android:textColor="@color/text_muted"
             android:textSize="12sp" />
 

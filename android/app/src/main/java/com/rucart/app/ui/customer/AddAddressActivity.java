@@ -56,11 +56,7 @@ public class AddAddressActivity extends AppCompatActivity {
         setupSpinners();
         loadConfiguredServiceAreas();
 
-        if (existingAddress != null) {
-            populateExistingData();
-        } else {
-            prefillUserDetails();
-        }
+        if (existingAddress != null) { populateExistingData(); }
 
         setupListeners();
     }
@@ -138,14 +134,6 @@ public class AddAddressActivity extends AppCompatActivity {
         if (existingAddress.getLandmark() != null) etLandmark.setText(existingAddress.getLandmark());
         if (existingAddress.getPostalCode() != null) etPinCode.setText(existingAddress.getPostalCode());
         cbSetDefault.setChecked(existingAddress.isDefault());
-    }
-
-    private void prefillUserDetails() {
-        String name = SessionManager.getInstance().getUserName();
-        String phone = SessionManager.getInstance().getUserPhone();
-        if (name != null) etRecipient.setText(name);
-        if (phone != null) etPhone.setText(phone);
-        etPinCode.setText("411005");
     }
 
     private void setupListeners() {

@@ -72,7 +72,7 @@ public class SessionManager {
     }
 
     public String getSelectedAddress() {
-        return prefs.getString(KEY_SELECTED_ADDR, "Flat 402, Green Avenue, Shivajinagar, Pune");
+        return prefs.getString(KEY_SELECTED_ADDR, null);
     }
 
     public CustomerAddress getSelectedCustomerAddress() {

@@ -42,7 +42,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="+91 9876543210 • email@example.com"
+                    android:text="Phone • Email"
                     android:textColor="@color/text_secondary"
                     android:textSize="12sp" />
             </LinearLayout>

@@ -28,7 +28,6 @@ public class AdminLoginActivity extends AppCompatActivity {
     private EditText etAdminPassword;
     private AppCompatButton btnAdminLogin;
     private ProgressBar pbAdminLogin;
-    private TextView tvAdminQuickFill;
     private TextView tvBackToRoles;
 
     @Override
@@ -45,16 +44,10 @@ public class AdminLoginActivity extends AppCompatActivity {
         etAdminPassword = findViewById(R.id.etAdminPassword);
         btnAdminLogin = findViewById(R.id.btnAdminLogin);
         pbAdminLogin = findViewById(R.id.pbAdminLogin);
-        tvAdminQuickFill = findViewById(R.id.tvAdminQuickFill);
         tvBackToRoles = findViewById(R.id.tvBackToRoles);
     }
 
     private void setupListeners() {
-        tvAdminQuickFill.setOnClickListener(v -> {
-            etAdminPhone.setText("9876543213");
-            etAdminPassword.setText("admin123");
-            Toast.makeText(this, "Default Admin credentials filled", Toast.LENGTH_SHORT).show();
-        });
 
         btnAdminLogin.setOnClickListener(v -> performAdminLogin());
 

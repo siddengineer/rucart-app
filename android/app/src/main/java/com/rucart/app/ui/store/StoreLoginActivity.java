@@ -30,7 +30,6 @@ public class StoreLoginActivity extends AppCompatActivity {
     private ImageView ivStoreTogglePassword;
     private Button btnStoreLogin;
     private ProgressBar pbStoreLogin;
-    private TextView tvStoreQuickFill;
     private ImageView btnStoreLoginBack;
 
     private boolean isPasswordVisible = false;
@@ -51,7 +50,6 @@ public class StoreLoginActivity extends AppCompatActivity {
         ivStoreTogglePassword = findViewById(R.id.ivStoreTogglePassword);
         btnStoreLogin = findViewById(R.id.btnStoreLogin);
         pbStoreLogin = findViewById(R.id.pbStoreLogin);
-        tvStoreQuickFill = findViewById(R.id.tvStoreQuickFill);
     }
 
     private void setupListeners() {
@@ -67,12 +65,6 @@ public class StoreLoginActivity extends AppCompatActivity {
                 ivStoreTogglePassword.setImageResource(R.drawable.ic_visibility);
             }
             etStorePassword.setSelection(etStorePassword.getText().length());
-        });
-
-        tvStoreQuickFill.setOnClickListener(v -> {
-            etStorePhone.setText("9876543211");
-            etStorePassword.setText("123456");
-            Toast.makeText(this, "Store Owner demo credentials filled", Toast.LENGTH_SHORT).show();
         });
 
         btnStoreLogin.setOnClickListener(v -> performStoreLogin());
