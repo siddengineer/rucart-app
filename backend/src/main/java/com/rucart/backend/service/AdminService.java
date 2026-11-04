@@ -681,10 +681,15 @@ public class AdminService {
     }
 
     @Transactional
-    public String resetRiderPassword(Long userId, String newPassword, String actor) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Rider user not found with id: " + userId));
-        if (user.getRole() != Role.DELIVERY_PARTNER) {
+    public String resetRiderPassword(Long idOrUserId, String newPassword, String actor) {
+        User user = null;
+        Optional<DeliveryPartner> dpOpt = deliveryPartnerRepository.findById(idOrUserId);
+        if (dpOpt.isPresent()) {
+            user = dpOpt.get().getUser();
+        } else {
+            user = userRepository.findById(idOrUserId).orElse(null);
+        }
+        if (user == null || user.getRole() != Role.DELIVERY_PARTNER) {
             throw new IllegalArgumentException("Target user is not a delivery rider");
         }
 
@@ -694,24 +699,31 @@ public class AdminService {
         userRepository.save(user);
 
         auditLogService.logAction(actor, "ADMIN", "RESET_RIDER_PASSWORD", "USER",
-                String.valueOf(userId), "Reset password for rider: " + user.getName(), "SUCCESS");
+                String.valueOf(user.getId()), "Reset password for rider: " + user.getName(), "SUCCESS");
         return passwordToSet;
     }
 
     @Transactional
-    public RiderResponse updateRiderStatus(Long userId, String statusStr, String actor) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Rider not found with id: " + userId));
-        DeliveryPartner dp = deliveryPartnerRepository.findByUserId(userId)
-                .orElseGet(() -> new DeliveryPartner(user, "Motorcycle", "MH-12", "DL-MH12"));
+    public RiderResponse updateRiderStatus(Long idOrUserId, String statusStr, String actor) {
+        DeliveryPartner dp = null;
+        User user = null;
+        Optional<DeliveryPartner> dpOpt = deliveryPartnerRepository.findById(idOrUserId);
+        if (dpOpt.isPresent()) {
+            dp = dpOpt.get();
+            user = dp.getUser();
+        } else {
+            User foundUser = userRepository.findById(idOrUserId)
+                    .orElseThrow(() -> new RuntimeException("Rider not found with id: " + idOrUserId));
+            user = foundUser;
+            dp = deliveryPartnerRepository.findByUserId(foundUser.getId())
+                    .orElseGet(() -> new DeliveryPartner(foundUser, "Motorcycle", "MH-12", "DL-MH12"));
+        }
 
         if ("SUSPENDED".equalsIgnoreCase(statusStr) || "DEACTIVATE".equalsIgnoreCase(statusStr) || "INACTIVE".equalsIgnoreCase(statusStr)) {
             user.setActive(false);
             dp.setStatus(DeliveryPartnerStatus.SUSPENDED);
-            
         } else {
             user.setActive(true);
-            
             if ("SLEEP".equalsIgnoreCase(statusStr)) {
                 dp.setStatus(DeliveryPartnerStatus.SLEEP);
             } else if ("OFFLINE".equalsIgnoreCase(statusStr)) {
@@ -724,7 +736,7 @@ public class AdminService {
         DeliveryPartner savedDp = deliveryPartnerRepository.save(dp);
 
         auditLogService.logAction(actor, "ADMIN", "UPDATE_RIDER_STATUS", "USER",
-                String.valueOf(userId), "Set rider " + user.getName() + " status to " + statusStr, "SUCCESS");
+                String.valueOf(user.getId()), "Set rider " + user.getName() + " status to " + statusStr, "SUCCESS");
 
         RiderResponse resp = new RiderResponse();
         resp.setId(savedDp.getId());
@@ -740,9 +752,19 @@ public class AdminService {
         return resp;
     }
 
-    public List<Order> getRiderDeliveredOrders(Long userId) {
+    public List<Order> getRiderDeliveredOrders(Long idOrUserId) {
+        Long partnerId = idOrUserId;
+        Optional<DeliveryPartner> dpOpt = deliveryPartnerRepository.findById(idOrUserId);
+        if (dpOpt.isPresent()) {
+            partnerId = dpOpt.get().getId();
+        } else {
+            Optional<DeliveryPartner> byUser = deliveryPartnerRepository.findByUserId(idOrUserId);
+            if (byUser.isPresent()) {
+                partnerId = byUser.get().getId();
+            }
+        }
         return orderRepository.findByDeliveryPartnerIdAndStatusInOrderByCreatedAtDesc(
-                userId, List.of(OrderStatus.DELIVERED)
+                partnerId, List.of(OrderStatus.DELIVERED)
         );
     }
 
@@ -763,7 +785,7 @@ public class AdminService {
                 if (!matches) continue;
             }
 
-            Optional<Store> storeOpt = storeRepository.findByOwnerId(u.getId());
+            List<Store> stores = storeRepository.findAllByOwnerId(u.getId());
             StoreOwnerResponse resp = new StoreOwnerResponse();
             resp.setUserId(u.getId());
             resp.setName(u.getName());
@@ -773,18 +795,22 @@ public class AdminService {
             resp.setActive(u.isActive());
             resp.setCreatedAt(u.getCreatedAt());
 
-            if (storeOpt.isPresent()) {
-                Store st = storeOpt.get();
+            if (!stores.isEmpty()) {
+                Store st = stores.get(0);
                 resp.setStoreId(st.getId());
-                resp.setStoreName(st.getName());
+                resp.setStoreName(stores.stream().map(Store::getName).collect(Collectors.joining(", ")));
                 resp.setStoreArea(st.getServiceAreas());
-                long count = orderRepository.countByStoreId(st.getId());
+                long count = 0;
+                BigDecimal sales = BigDecimal.ZERO;
+                for (Store s : stores) {
+                    count += orderRepository.countByStoreId(s.getId());
+                    List<Order> orders = orderRepository.findByStoreIdOrderByCreatedAtDesc(s.getId());
+                    sales = sales.add(orders.stream()
+                            .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
+                            .map(o -> o.getGrandTotal() != null ? o.getGrandTotal() : BigDecimal.ZERO)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add));
+                }
                 resp.setTotalOrders((int) count);
-                List<Order> orders = orderRepository.findByStoreIdOrderByCreatedAtDesc(st.getId());
-                BigDecimal sales = orders.stream()
-                        .filter(o -> o.getStatus() == OrderStatus.DELIVERED)
-                        .map(o -> o.getGrandTotal() != null ? o.getGrandTotal() : BigDecimal.ZERO)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
                 resp.setTotalSales(sales);
             } else {
                 resp.setTotalOrders(0);
@@ -850,10 +876,15 @@ public class AdminService {
     }
 
     @Transactional
-    public String resetStoreOwnerPassword(Long userId, String newPassword, String actor) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Store owner not found with id: " + userId));
-        if (user.getRole() != Role.STORE_OWNER) {
+    public String resetStoreOwnerPassword(Long idOrUserId, String newPassword, String actor) {
+        User user = null;
+        Optional<Store> stOpt = storeRepository.findById(idOrUserId);
+        if (stOpt.isPresent()) {
+            user = stOpt.get().getOwner();
+        } else {
+            user = userRepository.findById(idOrUserId).orElse(null);
+        }
+        if (user == null || user.getRole() != Role.STORE_OWNER) {
             throw new IllegalArgumentException("Target user is not a store owner");
         }
 
@@ -863,26 +894,33 @@ public class AdminService {
         userRepository.save(user);
 
         auditLogService.logAction(actor, "ADMIN", "RESET_STORE_OWNER_PASSWORD", "USER",
-                String.valueOf(userId), "Reset password for store owner: " + user.getName(), "SUCCESS");
+                String.valueOf(user.getId()), "Reset password for store owner: " + user.getName(), "SUCCESS");
         return passwordToSet;
     }
 
     @Transactional
-    public StoreOwnerResponse updateStoreOwnerStatus(Long userId, boolean active, String actor) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Store owner not found with id: " + userId));
+    public StoreOwnerResponse updateStoreOwnerStatus(Long idOrUserId, boolean active, String actor) {
+        User user = null;
+        Optional<Store> stOpt = storeRepository.findById(idOrUserId);
+        if (stOpt.isPresent()) {
+            user = stOpt.get().getOwner();
+        } else {
+            user = userRepository.findById(idOrUserId)
+                    .orElseThrow(() -> new RuntimeException("Store owner not found with id: " + idOrUserId));
+        }
         user.setActive(active);
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        storeRepository.findByOwnerId(userId).ifPresent(st -> {
+        List<Store> stores = storeRepository.findAllByOwnerId(user.getId());
+        for (Store st : stores) {
             st.setActive(active);
             if (!active) st.setOpen(false);
             storeRepository.save(st);
-        });
+        }
 
         auditLogService.logAction(actor, "ADMIN", "UPDATE_STORE_OWNER_STATUS", "USER",
-                String.valueOf(userId), "Set store owner " + user.getName() + " active status to " + active, "SUCCESS");
+                String.valueOf(user.getId()), "Set store owner " + user.getName() + " active status to " + active, "SUCCESS");
 
         StoreOwnerResponse resp = new StoreOwnerResponse();
         resp.setUserId(user.getId());
@@ -892,12 +930,18 @@ public class AdminService {
         return resp;
     }
 
-    public List<Order> getStoreOwnerOrders(Long userId) {
-        Optional<Store> st = storeRepository.findByOwnerId(userId);
-        if (st.isPresent()) {
-            return orderRepository.findByStoreIdOrderByCreatedAtDesc(st.get().getId());
+    public List<Order> getStoreOwnerOrders(Long idOrUserId) {
+        Long ownerId = idOrUserId;
+        Optional<Store> stOpt = storeRepository.findById(idOrUserId);
+        if (stOpt.isPresent()) {
+            return orderRepository.findByStoreIdOrderByCreatedAtDesc(stOpt.get().getId());
         }
-        return Collections.emptyList();
+        List<Store> stores = storeRepository.findAllByOwnerId(ownerId);
+        List<Order> allOrders = new ArrayList<>();
+        for (Store st : stores) {
+            allOrders.addAll(orderRepository.findByStoreIdOrderByCreatedAtDesc(st.getId()));
+        }
+        return allOrders;
     }
 
     // =========================================================================

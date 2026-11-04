@@ -89,6 +89,16 @@ public class Offer {
         this.code = code;
     }
 
+    public String getCouponCode() {
+        return code;
+    }
+
+    public void setCouponCode(String couponCode) {
+        if (this.code == null || this.code.isBlank()) {
+            this.code = couponCode;
+        }
+    }
+
     public CommissionType getDiscountType() {
         return discountType;
     }

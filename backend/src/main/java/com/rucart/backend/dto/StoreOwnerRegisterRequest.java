@@ -27,6 +27,16 @@ public class StoreOwnerRegisterRequest {
         this.name = name;
     }
 
+    public String getOwnerName() {
+        return name;
+    }
+
+    public void setOwnerName(String ownerName) {
+        if (this.name == null || this.name.isBlank()) {
+            this.name = ownerName;
+        }
+    }
+
     public String getPhone() {
         return phone;
     }

@@ -15,8 +15,10 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     List<Store> findByActiveTrueAndOpenTrue();
     List<Store> findByApprovedTrueAndActiveTrueAndOpenTrue();
     List<Store> findByApprovedTrueAndActiveTrue();
-    Optional<Store> findByOwner(User owner);
-    Optional<Store> findByOwnerId(Long ownerId);
+    Optional<Store> findFirstByOwner(User owner);
+    List<Store> findAllByOwner(User owner);
+    Optional<Store> findFirstByOwnerId(Long ownerId);
+    List<Store> findAllByOwnerId(Long ownerId);
     List<Store> findByCityIgnoreCase(String city);
     List<Store> findAllByOrderByCreatedAtDesc();
     List<Store> findByNameContainingIgnoreCase(String name);

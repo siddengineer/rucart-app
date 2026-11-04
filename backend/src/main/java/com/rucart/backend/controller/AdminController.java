@@ -360,7 +360,7 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.ok(Map.of("current", current, "history", history)));
     }
 
-    @PostMapping("/commission")
+    @RequestMapping(value = "/commission", method = {RequestMethod.POST, RequestMethod.PUT})
     public ResponseEntity<ApiResponse<RiderCommissionDto>> updateCommission(
             @RequestBody Map<String, Object> body,
             Principal principal) {
